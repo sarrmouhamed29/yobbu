@@ -66,7 +66,63 @@ Détail des décisions : `docs/PROJECT.md`, section 10.
 - [ ] `ADR` Frontend (framework, gestion d'état, PWA)
 - [ ] `ADR` Authentification et identité (OIDC, rôles)
 
-### 0.3 Dépôt et squelette
+### 0.3 Conception
+
+Objectif : une conception complète, relue et versionnée **avant** d'écrire le code métier. Tout vit dans `docs/design/` et `docs/architecture/`. Les diagrammes sont écrits « en code » (texte versionné, relisible en PR) ; le format est tranché par l'ADR 0009.
+
+**Cadrage fonctionnel**
+
+- [ ] `ADR` Format des diagrammes (Mermaid, PlantUML ou autre) et emplacement
+- [ ] `DEV` Glossaire du domaine (langage commun : course, proposition, dispatch, point de retrait, etc.)
+- [ ] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation
+- [ ] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée
+- [ ] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge)
+- [ ] `DEV` Découpage en domaines et modules (contextes délimités) + carte des contextes : qui possède quelle donnée, qui parle à qui
+
+**Modélisation UML**
+
+- [ ] `DEV` Diagramme de classes du domaine (entités, objets valeur, agrégats, invariants)
+- [ ] `DEV` Diagrammes d'états : commande, livraison, proposition de course, disponibilité du livreur (transitions autorisées et événements déclencheurs)
+- [ ] `DEV` Diagrammes de séquence : flux nominal, refus et expiration d'une proposition, perte de réseau du livreur puis resynchronisation, paiement simulé et rappel idempotent, annulation
+- [ ] `DEV` Diagramme d'activité de l'algorithme de dispatch (candidats, score, repli)
+- [ ] `DEV` Diagramme de composants et diagramme de déploiement (nœuds, conteneurs, réseaux)
+
+**Modèle de données**
+
+- [ ] `DEV` Modèle conceptuel puis modèle logique (diagramme entité-association) avec règles d'intégrité
+- [ ] `DEV` Modèle physique : types, clés, contraintes, index (dont index géographiques), partitionnement éventuel des positions
+- [ ] `DEV` Stratégie de migration, de volumétrie et de rétention (surtout les positions, volumineuses)
+- [ ] `DEV` Traçabilité : journal d'audit de chaque livraison, historisation des changements d'état
+- [ ] `SEC` Classification des données personnelles (ce qu'on stocke, pourquoi, combien de temps, qui y accède)
+
+**Architecture (vues complémentaires)**
+
+- [ ] `DEV` Modèle C4 : niveau 1 (contexte), niveau 2 (conteneurs), niveau 3 (composants des parties critiques)
+- [ ] `DEV` Vue fonctionnelle : capacités par acteur et leurs dépendances
+- [ ] `OPS` Vue technique et d'infrastructure : environnements, réseau, stockage, flux entrants et sortants
+- [ ] `DEV` Vue des flux de données et d'événements : catalogue des événements (nom, schéma, producteur, consommateurs, version)
+- [ ] `SEC` Frontières de confiance et modèle de menaces (STRIDE) sur les flux sensibles
+- [ ] `DEV` Stratégie de cohérence : ce qui est transactionnel, ce qui est asynchrone, où l'idempotence est requise
+
+**Contrats et conventions**
+
+- [ ] `DEV` Conception de l'API d'abord (OpenAPI rédigé avant le code) : ressources, erreurs, pagination, versionnement, idempotence
+- [ ] `DEV` Conventions : nommage, structure des modules, gestion des erreurs, journalisation
+- [ ] `OBS` Plan d'observabilité : logs, métriques, traces, identifiant de corrélation d'une commande, premiers SLO
+- [ ] `TEST` Stratégie de test (pyramide, données de test, contrats, charge) et plan de résilience (modes de panne et comportement attendu de chaque composant)
+
+**Interfaces**
+
+- [ ] `DEV` Parcours utilisateurs et maquettes basse fidélité des quatre interfaces (client, livreur, marchand, opérateur)
+- [ ] `DEV` Conception du mode hors-ligne du livreur : données gardées en local, file des actions, règles de résolution de conflits
+
+**Revue de conception (critère de sortie)**
+
+- [ ] Relecture croisée : chaque exigence est couverte par un cas d'utilisation, chaque cas par une séquence, chaque donnée a un propriétaire
+- [ ] Cohérence vérifiée entre diagramme de classes, états, modèle de données et événements
+- [ ] Documents indexés dans `docs/README.md`, ADR liés aux diagrammes qu'ils justifient
+
+### 0.4 Dépôt et squelette
 
 - [ ] `DEV` Structure du dépôt (dossiers, README, LICENSE, CONTRIBUTING, modèles d'issues et de PR)
 - [ ] `DEV` Squelette backend + frontend + base, un flux trivial de bout en bout
@@ -77,7 +133,7 @@ Détail des décisions : `docs/PROJECT.md`, section 10.
 - [ ] `DEV` Conventional Commits appliqués (vérification en CI)
 - [ ] `DEV` Remplir les sections « Commandes » et « Structure » de `CLAUDE.md`
 
-**Sortie de phase :** un inconnu clone le dépôt, lance une commande, voit l'application répondre ; la CI est verte.
+**Sortie de phase :** la conception est relue et versionnée ; un inconnu clone le dépôt, lance une commande, voit l'application répondre ; la CI est verte.
 
 ---
 
@@ -201,6 +257,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0006 | Frontend | à faire |
 | 0007 | Authentification | à faire |
 | 0008 | Algorithme de dispatch | à faire |
+| 0009 | Format des diagrammes | à faire |
 
 Statuts : à faire · proposé · accepté · remplacé.
 
