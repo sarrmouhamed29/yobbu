@@ -55,4 +55,4 @@ Not available yet. The goal is a single command (`docker compose up` or `make de
 
 ## License
 
-To be defined (listed in the phase 0 backlog).
+Released under the [MIT License](LICENSE).

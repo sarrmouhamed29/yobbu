@@ -124,7 +124,7 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 ### 0.4 Dépôt et squelette
 
-- [ ] `DEV` Structure du dépôt (dossiers, README, LICENSE, CONTRIBUTING, modèles d'issues et de PR)
+- [ ] `DEV` Structure du dépôt (dossiers, CONTRIBUTING, modèles d'issues et de PR ; README et licence MIT déjà en place)
 - [ ] `DEV` Squelette backend + frontend + base, un flux trivial de bout en bout
 - [ ] `OPS` Démarrage en une commande (`docker compose up` ou `make dev`)
 - [ ] `OPS` CI minimale : lint, tests, build
