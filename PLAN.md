@@ -63,7 +63,7 @@ Détail des décisions : `docs/PROJECT.md`, section 10.
 - [x] `ADR` Base de données et gestion géographique : **PostgreSQL + PostGIS** (ADR 0003)
 - [x] `ADR` Messagerie et traitement asynchrone : **Kafka**, repli RabbitMQ si mesures défavorables (ADR 0004)
 - [x] `ADR` Temps réel vers les cartes : **SSE descendant + HTTP POST montant** (ADR 0005)
-- [ ] `ADR` Frontend (framework, gestion d'état, PWA)
+- [x] `ADR` Frontend (framework, gestion d'état, PWA) : **React + TypeScript + Vite**, trois applications en monorepo (ADR 0006)
 - [ ] `ADR` Authentification et identité (OIDC, rôles)
 
 ### 0.3 Conception
@@ -255,7 +255,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0003 | Base de données et géographique | accepté (PostgreSQL + PostGIS) |
 | 0004 | Messagerie et asynchrone | accepté (Kafka, repli RabbitMQ) |
 | 0005 | Temps réel | accepté (SSE + HTTP POST) |
-| 0006 | Frontend | proposé (React + TypeScript + Vite) |
+| 0006 | Frontend | accepté (React + TypeScript + Vite) |
 | 0007 | Authentification | à faire |
 | 0008 | Algorithme de dispatch | à faire |
 | 0009 | Format des diagrammes | à faire |

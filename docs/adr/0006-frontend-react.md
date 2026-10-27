@@ -1,6 +1,6 @@
 # ADR 0006: Frontend
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-27
 - **Deciders:** project owner
 
@@ -46,7 +46,7 @@ Server state with TanStack Query, a small client store (for example Zustand), a 
 **Option A: React with strict TypeScript and Vite.**
 
 - **State:** three kinds of state kept apart. Server state (fetched data, cache, refresh) in TanStack Query; small local UI state in a light client store; the offline queue persisted in IndexedDB. Mixing them is the usual cause of unmanaged state.
-- **Organisation:** one workspace (monorepo) with three applications (customer, courier, operator) sharing packages: generated API client, SSE client, UI components, translations. The courier app does not ship operator code and stays the lightest. Cost: three builds instead of one. This part follows the recommendation presented during the discussion and is confirmed at acceptance.
+- **Organisation:** one workspace (monorepo) with three applications (customer, courier, operator) sharing packages: generated API client, SSE client, UI components, translations. The courier app does not ship operator code and stays the lightest. Cost: three builds instead of one. Three applications confirmed by the owner at acceptance.
 - **PWA:** service worker with Workbox for the customer and courier apps; the offline queue and its replay follow ADR 0005 (idempotent batches with client-generated identifiers). Background sync support varies by browser and is not assumed; replay on app foreground and on network return is the baseline.
 - **Tests:** unit and component tests with Vitest and Testing Library, end-to-end tests with Playwright, automated accessibility checks in CI. Tool versions are pinned when the skeleton is created.
 - **Internationalisation:** translation keys from the start (French first), even with a single language at launch.
