@@ -8,8 +8,6 @@ Description produit, objectif et périmètre. Les règles de travail sont dans `
 
 Elle vise les marchés africains où la livraison de repas et de colis explose (Dakar, Abidjan, Lagos, Douala, Lomé), avec des réseaux instables et des règles qui changent d'un pays à l'autre.
 
-Le contexte s'inspire de TiakTiak, une plateforme de livraison fictive multi-pays (Sénégal, Gambie, Côte d'Ivoire, Togo, Nigeria, Cameroun) utilisée dans un cours d'application cloud native. Yóbbu n'est pas ce TP : c'est un projet personnel autonome.
-
 ## 2. L'objectif réel : un projet vitrine de niveau senior
 
 Ce projet n'est pas un produit à vendre. C'est un **projet de portfolio** destiné à démontrer, à un recruteur, des compétences d'ingénieur **senior en full stack ET en DevOps**, à parts égales de sérieux (avec un léger accent sur le DevOps).
@@ -81,7 +79,7 @@ La première version reste **étroite** : une livraison complète, de la command
 - Pas d'argent réel ni de vraies données personnelles : tout est simulé ou fictif
 - Pas de vrais livreurs : un **simulateur** de livreurs (qui bougent sur une carte) sert à la démonstration et aux tests de charge
 - Pas de paiement réel, et aucune prétention de conformité réglementaire (à écrire clairement dans le README)
-- Pas de migration monolithe vers microservices (le « Strangler Pattern » du cours est volontairement écarté)
+- Pas de migration monolithe vers microservices (pas de « Strangler Pattern »)
 
 ## 6. Le niveau de qualité attendu
 
@@ -121,8 +119,6 @@ Ce sont les endroits où il faut réfléchir sérieusement, pas improviser :
 **Important : la pile technique n'est pas choisie.** Ne suppose rien et n'impose pas de technologie sans discussion.
 
 Pistes évoquées pendant la réflexion, à titre indicatif et non engageant : PostgreSQL avec PostGIS pour les données et le géographique, un bus de messages (Kafka, NATS ou RabbitMQ) pour le temps réel, Redis pour le cache, WebSocket ou SSE pour la diffusion, Kubernetes avec Helm ou Kustomize, GitOps, Keycloak pour l'identité, Prometheus, Grafana et OpenTelemetry pour l'observabilité, Vault ou équivalent pour les secrets, GitHub Actions pour la CI/CD.
-
-Les services du contexte TiakTiak (Commande, Paiement, Stock, Notification) étaient en Spring Boot, avec parfois Node.js ou Python. Rien n'oblige à le reprendre ici.
 
 **Pour chaque décision structurante :** voir `CLAUDE.md`.
 
