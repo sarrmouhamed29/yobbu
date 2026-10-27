@@ -58,7 +58,7 @@ Détail des décisions : `docs/PROJECT.md`, section 10.
 
 ### 0.2 Décisions d'architecture
 
-- [ ] `ADR` Monolithe modulaire ou microservices
+- [x] `ADR` Monolithe modulaire ou microservices : **microservices** (ADR 0001)
 - [ ] `ADR` Langage et framework backend
 - [ ] `ADR` Base de données et gestion géographique
 - [ ] `ADR` Messagerie et traitement asynchrone (justifier le besoin avant de choisir)
@@ -249,7 +249,7 @@ Objectif : le projet tourne vraiment, en ligne.
 
 | N° | Sujet | Statut |
 | --- | --- | --- |
-| 0001 | Monolithe modulaire ou microservices | proposé (microservices) |
+| 0001 | Monolithe modulaire ou microservices | accepté (microservices) |
 | 0002 | Backend | à faire |
 | 0003 | Base de données et géographique | à faire |
 | 0004 | Messagerie et asynchrone | à faire |
@@ -269,4 +269,4 @@ Statuts : à faire · proposé · accepté · remplacé.
 
 | Itération | Objectif | Résultat | Rétro (marché / frotté / on change) |
 | --- | --- | --- | --- |
-| 1 | Cadrage + ADR 0001 | 0.1 terminé (5 décisions de cadrage) ; ADR 0001 à faire | |
+| 1 | Cadrage + ADR 0001 | 0.1 terminé (5 décisions de cadrage) ; ADR 0001 accepté (microservices) | |

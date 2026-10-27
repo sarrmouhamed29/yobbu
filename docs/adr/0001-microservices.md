@@ -1,6 +1,6 @@
 # ADR 0001: Microservices from the start
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-27
 - **Deciders:** project owner
 
