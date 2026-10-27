@@ -1,6 +1,6 @@
 # ADR 0003: Database and geospatial data
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-27
 - **Deciders:** project owner
 
