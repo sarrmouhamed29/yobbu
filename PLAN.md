@@ -64,7 +64,7 @@ Détail des décisions : `docs/PROJECT.md`, section 10.
 - [x] `ADR` Messagerie et traitement asynchrone : **Kafka**, repli RabbitMQ si mesures défavorables (ADR 0004)
 - [x] `ADR` Temps réel vers les cartes : **SSE descendant + HTTP POST montant** (ADR 0005)
 - [x] `ADR` Frontend (framework, gestion d'état, PWA) : **React + TypeScript + Vite**, trois applications en monorepo (ADR 0006)
-- [ ] `ADR` Authentification et identité (OIDC, rôles)
+- [x] `ADR` Authentification et identité : **Keycloak, OIDC + PKCE**, validation du jeton dans chaque service (ADR 0007)
 
 ### 0.3 Conception
 
@@ -256,7 +256,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0004 | Messagerie et asynchrone | accepté (Kafka, repli RabbitMQ) |
 | 0005 | Temps réel | accepté (SSE + HTTP POST) |
 | 0006 | Frontend | accepté (React + TypeScript + Vite) |
-| 0007 | Authentification | proposé (Keycloak, OIDC + PKCE) |
+| 0007 | Authentification | accepté (Keycloak, OIDC + PKCE) |
 | 0008 | Algorithme de dispatch | à faire |
 | 0009 | Format des diagrammes | à faire |
 
