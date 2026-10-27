@@ -252,7 +252,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0001 | Monolithe modulaire ou microservices | accepté (microservices) |
 | 0002 | Backend | accepté (Java + Spring Boot) |
 | 0003 | Base de données et géographique | accepté (PostgreSQL + PostGIS) |
-| 0004 | Messagerie et asynchrone | à faire |
+| 0004 | Messagerie et asynchrone | proposé (Kafka, repli RabbitMQ) |
 | 0005 | Temps réel | à faire |
 | 0006 | Frontend | à faire |
 | 0007 | Authentification | à faire |
