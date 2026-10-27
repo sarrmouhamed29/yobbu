@@ -1,6 +1,6 @@
 # ADR 0002: Backend language and framework
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-27
 - **Deciders:** project owner
 

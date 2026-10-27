@@ -59,7 +59,7 @@ Détail des décisions : `docs/PROJECT.md`, section 10.
 ### 0.2 Décisions d'architecture
 
 - [x] `ADR` Monolithe modulaire ou microservices : **microservices** (ADR 0001)
-- [ ] `ADR` Langage et framework backend
+- [x] `ADR` Langage et framework backend : **Java + Spring Boot** (ADR 0002)
 - [ ] `ADR` Base de données et gestion géographique
 - [ ] `ADR` Messagerie et traitement asynchrone (justifier le besoin avant de choisir)
 - [ ] `ADR` Temps réel vers les cartes (WebSocket ou SSE)
@@ -250,7 +250,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | N° | Sujet | Statut |
 | --- | --- | --- |
 | 0001 | Monolithe modulaire ou microservices | accepté (microservices) |
-| 0002 | Backend | proposé (Java + Spring Boot) |
+| 0002 | Backend | accepté (Java + Spring Boot) |
 | 0003 | Base de données et géographique | à faire |
 | 0004 | Messagerie et asynchrone | à faire |
 | 0005 | Temps réel | à faire |
