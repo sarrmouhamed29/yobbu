@@ -253,7 +253,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0002 | Backend | accepté (Java + Spring Boot) |
 | 0003 | Base de données et géographique | accepté (PostgreSQL + PostGIS) |
 | 0004 | Messagerie et asynchrone | accepté (Kafka, repli RabbitMQ) |
-| 0005 | Temps réel | à faire |
+| 0005 | Temps réel | proposé (SSE + HTTP POST) |
 | 0006 | Frontend | à faire |
 | 0007 | Authentification | à faire |
 | 0008 | Algorithme de dispatch | à faire |
