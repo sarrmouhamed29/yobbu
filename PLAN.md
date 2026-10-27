@@ -256,7 +256,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0004 | Messagerie et asynchrone | accepté (Kafka, repli RabbitMQ) |
 | 0005 | Temps réel | accepté (SSE + HTTP POST) |
 | 0006 | Frontend | accepté (React + TypeScript + Vite) |
-| 0007 | Authentification | à faire |
+| 0007 | Authentification | proposé (Keycloak, OIDC + PKCE) |
 | 0008 | Algorithme de dispatch | à faire |
 | 0009 | Format des diagrammes | à faire |
 
