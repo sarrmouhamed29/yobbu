@@ -249,7 +249,7 @@ Objectif : le projet tourne vraiment, en ligne.
 
 | N° | Sujet | Statut |
 | --- | --- | --- |
-| 0001 | Monolithe modulaire ou microservices | à faire |
+| 0001 | Monolithe modulaire ou microservices | proposé (microservices) |
 | 0002 | Backend | à faire |
 | 0003 | Base de données et géographique | à faire |
 | 0004 | Messagerie et asynchrone | à faire |
