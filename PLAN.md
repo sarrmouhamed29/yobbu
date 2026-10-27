@@ -61,7 +61,7 @@ Détail des décisions : `docs/PROJECT.md`, section 10.
 - [x] `ADR` Monolithe modulaire ou microservices : **microservices** (ADR 0001)
 - [x] `ADR` Langage et framework backend : **Java + Spring Boot** (ADR 0002)
 - [x] `ADR` Base de données et gestion géographique : **PostgreSQL + PostGIS** (ADR 0003)
-- [ ] `ADR` Messagerie et traitement asynchrone (justifier le besoin avant de choisir)
+- [x] `ADR` Messagerie et traitement asynchrone : **Kafka**, repli RabbitMQ si mesures défavorables (ADR 0004)
 - [ ] `ADR` Temps réel vers les cartes (WebSocket ou SSE)
 - [ ] `ADR` Frontend (framework, gestion d'état, PWA)
 - [ ] `ADR` Authentification et identité (OIDC, rôles)
@@ -252,7 +252,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0001 | Monolithe modulaire ou microservices | accepté (microservices) |
 | 0002 | Backend | accepté (Java + Spring Boot) |
 | 0003 | Base de données et géographique | accepté (PostgreSQL + PostGIS) |
-| 0004 | Messagerie et asynchrone | proposé (Kafka, repli RabbitMQ) |
+| 0004 | Messagerie et asynchrone | accepté (Kafka, repli RabbitMQ) |
 | 0005 | Temps réel | à faire |
 | 0006 | Frontend | à faire |
 | 0007 | Authentification | à faire |

@@ -1,6 +1,6 @@
 # ADR 0004: Messaging and asynchronous processing
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-27
 - **Deciders:** project owner
 
