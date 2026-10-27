@@ -1,6 +1,6 @@
 # ADR 0005: Real-time delivery to maps
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-27
 - **Deciders:** project owner
 
