@@ -72,7 +72,7 @@ La première version reste **étroite** : une livraison complète, de la command
 
 | Étape | Contenu |
 | --- | --- |
-| **Première version** | Commande, choix automatique du livreur, proposition acceptée ou refusée, suivi en direct sur carte, notifications de base, console opérateur minimale, livreurs simulés pour la démonstration |
+| **Première version** | Commande (repas ou colis), marchand simulé, paiement mobile money simulé, choix automatique du livreur, proposition acceptée ou refusée, suivi en direct sur carte (Dakar), notifications de base, console opérateur minimale, livreurs simulés pour la démonstration |
 | **Ensuite** | Espace marchand, réaffectation par l'opérateur, alertes sur les situations bloquées, mode hors-ligne du livreur, notation et signalement |
 | **Plus tard** | Plusieurs pays avec règles propres, plusieurs langues, indicateurs avancés, gains et historique du livreur |
 
@@ -127,13 +127,15 @@ Les services du contexte TiakTiak (Commande, Paiement, Stock, Notification) éta
 **Pour chaque décision structurante :** voir `CLAUDE.md`.
 
 
-## 10. Questions ouvertes à trancher avec le propriétaire
+## 10. Décisions de cadrage (phase 0.1)
 
-- Le périmètre exact de la première version : le marchand en fait-il partie, ou reste-t-il simulé ?
-- Le type de livraison visé : repas, colis, ou les deux ?
-- La ville de démonstration pour la carte et les livreurs simulés
-- Le paiement : hors périmètre au départ (paiement à la livraison simulé) ou intégré dès le début ?
-- Orthographe et sens exact du nom Yóbbu, à confirmer avec un locuteur wolof
-- Disponibilité du nom sur GitHub et absence de collision avec un produit existant
-- Monolithe modulaire ou microservices pour la première version (à traiter dans un premier ADR)
+| Sujet | Décision |
+| --- | --- |
+| Marchand en V1 | **Simulé** : il confirme et déclare la commande « prête » sans interface dédiée. L'espace marchand réel arrive en phase 2. |
+| Type de livraison | **Repas et colis**, via un seul modèle de commande avec un champ `type`. Pas de logique propre à chaque type en V1 ; pour un colis, l'expéditeur joue le rôle du marchand (simulé). Si le colis exige un parcours distinct (preuve de remise, expéditeur réel), il passe en phase 2. |
+| Ville de démonstration | **Dakar** (carte et livreurs simulés). |
+| Paiement | **Mobile money simulé**, en petit module isolé : faux fournisseur, un seul rappel idempotent, statut « payé ». Aucun argent réel. Si l'itération 1 déborde, repli sur un paiement à la livraison simulé. |
+| Nom Yóbbu | Validé par le propriétaire (orthographe et sens wolof). Dépôt : `sarrmouhamed29/yobbu`. Le compte `yobbu` et l'organisation `Yobbu-App` existent déjà sur GitHub, et quelques dépôts homonymes (`yobbul-*`, etc.) sans traction. Domaines et marques non vérifiés. |
+
+Question technique restante : monolithe modulaire ou microservices, traitée dans l'ADR 0001 (voir `PLAN.md`).
 

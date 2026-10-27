@@ -48,11 +48,13 @@ Objectif : se mettre d'accord sur les points bloquants et obtenir un squelette q
 
 ### 0.1 Cadrage (questions ouvertes de `docs/PROJECT.md`)
 
-- [ ] Fixer le périmètre de la V1 (le marchand est-il simulé ou réel ?)
-- [ ] Choisir le type de livraison (repas, colis, ou les deux)
-- [ ] Choisir la ville de démonstration (carte, livreurs simulés)
-- [ ] Trancher le paiement (hors périmètre ou livraison payée à la remise simulée)
-- [ ] Vérifier le nom Yóbbu (orthographe, sens, disponibilité GitHub, collision)
+- [x] Fixer le périmètre de la V1 : marchand **simulé**
+- [x] Choisir le type de livraison : **repas et colis** (un modèle de commande, champ `type`)
+- [x] Choisir la ville de démonstration : **Dakar**
+- [x] Trancher le paiement : **mobile money simulé**, module isolé (repli sur paiement à la livraison simulé si l'itération déborde)
+- [x] Vérifier le nom Yóbbu : validé par le propriétaire ; aucune collision bloquante sur GitHub
+
+Détail des décisions : `docs/PROJECT.md`, section 10.
 
 ### 0.2 Décisions d'architecture
 
@@ -85,7 +87,8 @@ Objectif : **une livraison complète, de la commande à la remise, dans un pays 
 
 ### 1.1 Modèle et API
 
-- [ ] `DEV` Modèle de données (commandes, livreurs, courses, positions) avec migrations versionnées
+- [ ] `DEV` Modèle de données (commandes avec champ `type` repas/colis, livreurs, courses, positions) avec migrations versionnées
+- [ ] `DEV` Paiement mobile money simulé : faux fournisseur, rappel idempotent, statut « payé » (module isolé)
 - [ ] `DEV` Machine d'états de la commande et de la livraison (transitions valides uniquement)
 - [ ] `DEV` API versionnée + spécification OpenAPI
 - [ ] `DEV` Validation, gestion d'erreurs, limitation de débit
@@ -209,4 +212,4 @@ Statuts : à faire · proposé · accepté · remplacé.
 
 | Itération | Objectif | Résultat | Rétro (marché / frotté / on change) |
 | --- | --- | --- | --- |
-| 1 | Cadrage + ADR 0001 | | |
+| 1 | Cadrage + ADR 0001 | 0.1 terminé (5 décisions de cadrage) ; ADR 0001 à faire | |
