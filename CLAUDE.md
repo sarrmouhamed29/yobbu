@@ -17,6 +17,7 @@ Description complète, acteurs, périmètre et phases : @docs/PROJECT.md
 - **Phases :** une phase à la fois, toujours démontrable. Ne commence pas la suivante sans avoir terminé et vérifié la précédente. Périmètre réduit qui marche > grand périmètre à moitié fini.
 - **Démarrage en une commande** (`docker compose up` ou `make dev`) : ne jamais casser cette propriété.
 - **Honnêteté :** si une chose est simulée, non testée ou non faite, le dire dans le code, la doc et le README. Ne jamais affirmer qu'une fonction marche sans l'avoir vérifiée.
+- **Méthodologie documentée :** la méthodologie suivie (Scrum allégé, itérations, Definition of Done, ADR, phases) doit être décrite dans `README.md` (section « Methodology »). Tout changement de méthode met à jour `README.md` et `PLAN.md` dans la même PR.
 - **Ambiguïté :** pose une seule question claire plutôt que de deviner. Pour une grosse tâche, propose d'abord un plan court.
 
 ## Qualité du dépôt
