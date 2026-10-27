@@ -166,6 +166,7 @@ Objectif : **une livraison complète, de la commande à la remise, dans un pays 
 
 - [ ] `DEV` Réception des positions des livreurs
 - [ ] `DEV` Diffusion vers les cartes
+- [ ] `ADR` Fond de carte : fournisseur de tuiles ou hébergement propre (les serveurs publics OpenStreetMap ne conviennent pas à un usage intensif)
 - [ ] `DEV` Heure d'arrivée estimée
 
 ### 1.5 Simulateur
@@ -254,7 +255,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0003 | Base de données et géographique | accepté (PostgreSQL + PostGIS) |
 | 0004 | Messagerie et asynchrone | accepté (Kafka, repli RabbitMQ) |
 | 0005 | Temps réel | accepté (SSE + HTTP POST) |
-| 0006 | Frontend | à faire |
+| 0006 | Frontend | proposé (React + TypeScript + Vite) |
 | 0007 | Authentification | à faire |
 | 0008 | Algorithme de dispatch | à faire |
 | 0009 | Format des diagrammes | à faire |
