@@ -2,7 +2,7 @@
 
 Use cases by actor, with their phase. Vocabulary follows the [glossary](glossary.md). Source of the functional scope: `docs/PROJECT.md` (sections 3 and 5) and the scoping decisions of phase 0.1.
 
-**Status:** draft, to be confirmed by the owner. Points that need a decision are listed in [Open points](#open-points).
+**Status:** validated by the owner on 2026-10-28, including the five decisions listed in [Decisions](#decisions).
 
 ![Use case diagram](use-cases.svg)
 
@@ -25,7 +25,7 @@ Source: [use-cases.puml](use-cases.puml). Regenerate with `scripts/diagrams.sh` 
 | CUS-03 | Follow order status | V1 | See the current state of the order and its delivery. |
 | CUS-04 | Track delivery live with ETA | V1 | See the courier move on a map with an estimated arrival time (straight-line estimate, declared simplification). Variant: network loss, the view resumes with a snapshot then the live stream (ADR 0005). |
 | CUS-05 | Receive notifications | V1 | Be notified at each key step. In-app only in the first version; SMS and email simulated. |
-| CUS-06 | Cancel before pickup | V1 | Cancel the order until the courier has picked up the goods. Variant: too late, cancellation refused. See [open points](#open-points). |
+| CUS-06 | Cancel before pickup | V1 | Cancel the order until the courier has picked up the goods. Variant: too late, cancellation refused. See [decisions](#decisions). |
 | CUS-07 | Rate a delivery | Later | Rate a completed delivery. |
 | CUS-08 | Report a problem | Later | Report an issue about a delivery. |
 | CUS-09 | View order history | Later | List past orders. |
@@ -77,9 +77,9 @@ These steps run without a user action. They are shown in the diagram only when a
 | SYS-05 | Send notifications | State change | V1 | Produce the notifications of CUS-05. |
 | SIM-01 | Simulate couriers | Demo or load test | V1 | A simulator drives virtual couriers that move on the map, set availability and answer offers. External actor: courier simulator. |
 
-## Open points
+## Decisions
 
-Proposed answers are in italics.
+Confirmed by the owner; the italic text states the fallback or what remains to be defined later.
 
 1. **Cancellation (CUS-06) is in the first version.** The product description lists it for the customer, and a sequence diagram for cancellation is planned in phase 0.3. *If it makes the first version too large, it moves to phase 2.*
 2. **How the merchant is simulated (MER-01, MER-02).** Either automatically after a configurable delay, or through a button in the operator console. *To be decided with the order service design; the first option keeps the console minimal.*

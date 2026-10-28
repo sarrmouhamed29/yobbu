@@ -74,7 +74,7 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 - [x] `ADR` Format des diagrammes : **PlantUML**, sources et SVG versionnés, `scripts/diagrams.sh` (ADR 0009)
 - [x] `DEV` Glossaire du domaine (langage commun : course, proposition, dispatch, point de retrait, etc.) : `docs/design/glossary.md`
-- [ ] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation
+- [x] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation : `docs/design/use-cases.md`
 - [ ] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée
 - [ ] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge)
 - [ ] `DEV` Découpage en domaines et modules (contextes délimités) + carte des contextes : qui possède quelle donnée, qui parle à qui
@@ -271,4 +271,5 @@ Statuts : à faire · proposé · accepté · remplacé.
 
 | Itération | Objectif | Résultat | Rétro (marché / frotté / on change) |
 | --- | --- | --- | --- |
-| 1 | Cadrage + ADR 0001 | 0.1 terminé (5 décisions de cadrage) ; ADR 0001 accepté (microservices) | |
+| 1 | Cadrage + décisions d'architecture | 0.1 terminé (5 décisions de cadrage) ; 0.2 terminé (ADR 0001 à 0007 acceptés) ; PR fusionnée | |
+| 2 | Cadrage fonctionnel de la conception (0.3) | ADR 0009 (PlantUML) accepté ; glossaire et cas d'utilisation validés ; premier diagramme versionné | |
