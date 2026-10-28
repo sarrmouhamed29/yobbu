@@ -258,6 +258,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0006 | Frontend | accepté (React + TypeScript + Vite) |
 | 0007 | Authentification | accepté (Keycloak, OIDC + PKCE) |
 | 0008 | Algorithme de dispatch | à faire |
+| 0009 | Format des diagrammes | proposé (PlantUML) |
 | 0009 | Format des diagrammes | à faire |
 
 Statuts : à faire · proposé · accepté · remplacé.
