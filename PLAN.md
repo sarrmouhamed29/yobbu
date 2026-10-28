@@ -75,7 +75,7 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 - [x] `ADR` Format des diagrammes : **PlantUML**, sources et SVG versionnés, `scripts/diagrams.sh` (ADR 0009)
 - [x] `DEV` Glossaire du domaine (langage commun : course, proposition, dispatch, point de retrait, etc.) : `docs/design/glossary.md`
 - [x] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation : `docs/design/use-cases.md`
-- [ ] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée
+- [x] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée : `docs/design/non-functional-requirements.md`
 - [ ] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge)
 - [ ] `DEV` Découpage en domaines et modules (contextes délimités) + carte des contextes : qui possède quelle donnée, qui parle à qui
 

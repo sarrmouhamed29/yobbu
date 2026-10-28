@@ -2,7 +2,7 @@
 
 Measurable targets for latency, throughput, availability and durability, with the way each one is verified. They guide the load tests and the first SLOs (see the observability plan, later in phase 0.3).
 
-**Status:** draft, to be confirmed by the owner.
+**Status:** validated by the owner on 2026-10-28.
 
 ## Nature of these numbers
 
