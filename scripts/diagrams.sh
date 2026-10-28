@@ -3,8 +3,8 @@
 #
 # Usage:
 #   scripts/diagrams.sh           render all diagrams
-#   scripts/diagrams.sh --check   render, then fail if any SVG differs from
-#                                 what is committed (stale or missing SVG)
+#   scripts/diagrams.sh --check   render, then fail if any SVG changed or was
+#                                 missing before rendering (stale or missing SVG)
 #
 # Requires Docker. On Windows, run it from Git Bash.
 set -euo pipefail
@@ -21,13 +21,28 @@ if ! find docs -name '*.puml' -print -quit | grep -q .; then
   exit 0
 fi
 
+# One line per source: the SVG path and a checksum, or "missing".
+snapshot() {
+  find docs -name '*.puml' | sort | while IFS= read -r source; do
+    svg="${source%.puml}.svg"
+    if [ -f "$svg" ]; then
+      echo "$svg $(cksum < "$svg")"
+    else
+      echo "$svg missing"
+    fi
+  done
+}
+
+before="$(snapshot)"
+
 find docs -name '*.puml' -print0 \
   | xargs -0 docker run --rm -v "$ROOT:/work" -w /work "$IMAGE" -tsvg
 
 if [ "${1:-}" = "--check" ]; then
-  if [ -n "$(git status --porcelain -- 'docs/**/*.svg' 'docs/*.svg')" ]; then
-    echo "Diagrams are out of date. Run scripts/diagrams.sh and commit the SVG files." >&2
-    git status --short -- 'docs/**/*.svg' 'docs/*.svg' >&2
+  after="$(snapshot)"
+  if [ "$before" != "$after" ]; then
+    echo "Diagrams are out of date. SVG files were regenerated; commit them." >&2
+    diff <(echo "$before") <(echo "$after") >&2 || true
     exit 1
   fi
   echo "Diagrams are up to date."
