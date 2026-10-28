@@ -1,6 +1,6 @@
 # ADR 0009: Diagram format
 
-- **Status:** proposed
+- **Status:** accepted
 - **Date:** 2026-10-28
 - **Deciders:** project owner
 

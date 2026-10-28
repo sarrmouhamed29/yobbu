@@ -72,7 +72,7 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 **Cadrage fonctionnel**
 
-- [ ] `ADR` Format des diagrammes (Mermaid, PlantUML ou autre) et emplacement
+- [x] `ADR` Format des diagrammes : **PlantUML**, sources et SVG versionnés, `scripts/diagrams.sh` (ADR 0009)
 - [ ] `DEV` Glossaire du domaine (langage commun : course, proposition, dispatch, point de retrait, etc.)
 - [ ] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation
 - [ ] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée
@@ -258,7 +258,7 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0006 | Frontend | accepté (React + TypeScript + Vite) |
 | 0007 | Authentification | accepté (Keycloak, OIDC + PKCE) |
 | 0008 | Algorithme de dispatch | à faire |
-| 0009 | Format des diagrammes | proposé (PlantUML) |
+| 0009 | Format des diagrammes | accepté (PlantUML) |
 | 0009 | Format des diagrammes | à faire |
 
 Statuts : à faire · proposé · accepté · remplacé.
