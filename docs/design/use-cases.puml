@@ -1,0 +1,112 @@
+@startuml use-cases
+title Yóbbu - use cases by actor
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  BackgroundColor<<later>> #EEEEEE
+  BorderColor<<later>> #9E9E9E
+  FontColor<<later>> #616161
+}
+
+actor "Customer" as Cus
+actor "Courier" as Cou
+actor "Merchant\n(simulated)" as Mer
+actor "Operator" as Ope
+actor "Payment provider\n(simulated)" as Pay
+actor "Courier simulator" as Sim
+
+rectangle "Yóbbu" {
+  usecase "ALL-01\nSign in and out" as ALL01
+
+  together {
+    usecase "CUS-01\nPlace an order" as CUS01
+    usecase "CUS-02\nPay (simulated)" as CUS02
+    usecase "CUS-03\nFollow order status" as CUS03
+    usecase "CUS-04\nTrack delivery live\nwith ETA" as CUS04
+    usecase "CUS-05\nReceive notifications" as CUS05
+    usecase "CUS-06\nCancel before pickup" as CUS06
+    usecase "CUS-07\nRate a delivery" as CUS07 <<later>>
+    usecase "CUS-08\nReport a problem" as CUS08 <<later>>
+    usecase "CUS-09\nView order history" as CUS09 <<later>>
+  }
+
+  together {
+    usecase "COU-01\nSet availability" as COU01
+    usecase "COU-02\nAnswer an offer\n(accept or refuse)" as COU02
+    usecase "COU-03\nSee delivery details\nand points on map" as COU03
+    usecase "COU-04\nUpdate delivery state" as COU04
+    usecase "COU-05\nShare position" as COU05
+    usecase "COU-06\nWork offline\nand synchronise" as COU06 <<later>>
+    usecase "COU-07\nSee today's deliveries\nand earnings" as COU07 <<later>>
+  }
+
+  together {
+    usecase "MER-01\nConfirm order" as MER01
+    usecase "MER-02\nDeclare order ready" as MER02
+    usecase "MER-03\nSee courier arrival" as MER03 <<later>>
+    usecase "MER-04\nView history" as MER04 <<later>>
+  }
+
+  together {
+    usecase "OPE-01\nSee deliveries in progress\n(list and map)" as OPE01
+    usecase "OPE-02\nInspect a delivery\nand its history" as OPE02
+    usecase "OPE-03\nReceive alerts on\nblocked deliveries" as OPE03 <<later>>
+    usecase "OPE-04\nReassign or force\na courier" as OPE04 <<later>>
+    usecase "OPE-05\nFollow indicators" as OPE05 <<later>>
+    usecase "OPE-06\nConfigure country rules" as OPE06 <<later>>
+  }
+
+  usecase "SYS-04\nProcess payment callback\n(idempotent)" as SYS04
+  usecase "SIM-01\nSimulate couriers" as SIM01
+}
+
+Cus --> CUS01
+Cus --> CUS03
+Cus --> CUS04
+Cus --> CUS05
+Cus --> CUS06
+Cus --> CUS07
+Cus --> CUS08
+Cus --> CUS09
+
+Cou --> COU01
+Cou --> COU02
+Cou --> COU03
+Cou --> COU04
+Cou --> COU05
+Cou --> COU06
+Cou --> COU07
+
+Mer --> MER01
+Mer --> MER02
+Mer --> MER03
+Mer --> MER04
+
+Ope --> OPE01
+Ope --> OPE02
+Ope --> OPE03
+Ope --> OPE04
+Ope --> OPE05
+Ope --> OPE06
+
+SYS04 <-- Pay
+SIM01 <-- Sim
+
+CUS01 ..> CUS02 : <<include>>
+CUS02 ..> SYS04 : <<include>>
+OPE02 ..> OPE01 : <<extend>>
+
+Cus ..> ALL01
+Cou ..> ALL01
+Ope ..> ALL01
+
+legend right
+  | Green | first version |
+  | Grey | later |
+  Automatic steps (candidate selection, offer expiry, notifications)
+  are described in the sequence diagrams and in use-cases.md.
+endlegend
+@enduml
