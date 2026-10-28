@@ -73,7 +73,7 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 **Cadrage fonctionnel**
 
 - [x] `ADR` Format des diagrammes : **PlantUML**, sources et SVG versionnés, `scripts/diagrams.sh` (ADR 0009)
-- [ ] `DEV` Glossaire du domaine (langage commun : course, proposition, dispatch, point de retrait, etc.)
+- [x] `DEV` Glossaire du domaine (langage commun : course, proposition, dispatch, point de retrait, etc.) : `docs/design/glossary.md`
 - [ ] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation
 - [ ] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée
 - [ ] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge)

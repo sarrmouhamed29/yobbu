@@ -2,7 +2,7 @@
 
 Shared vocabulary of Yóbbu. One concept, one word: the English term is the one used in code, events, APIs and documentation; the French term is the one used in discussion and in the product copy.
 
-**Status:** draft, to be confirmed by the owner. Points that need a decision are listed in [Open points](#open-points).
+**Status:** validated by the owner on 2026-10-28, including the five decisions listed in [Decisions](#decisions).
 
 Scope: first version (one simulated country, Dakar; simulated merchant; simulated payment). Items marked *later* are part of the product description but not of the first version.
 
@@ -105,9 +105,9 @@ Scope: first version (one simulated country, Dakar; simulated merchant; simulate
 | **Outbox** | boîte d'envoi | Table in a service's database where events are written in the same transaction as the data, then relayed to Kafka (ADR 0004). |
 | **Service** | service | One of the six deployable backend units: `gateway`, `order`, `dispatch`, `tracking`, `payment`, `notification` (ADR 0001). |
 
-## Open points
+## Decisions
 
-These decisions shape the models that follow. Proposed answers are in italics.
+These decisions shape the models that follow. They were confirmed by the owner; the italic text states what remains to be defined later.
 
 1. **Order and Delivery are two concepts.** The order is the commercial request; the delivery is the transport job with its assignment history. *One order has exactly one delivery in the first version; a reassignment changes the courier of the same delivery.* This also matches the four separate state diagrams planned (order, delivery, offer, courier availability).
 2. **"Course" and "livraison" name the same concept (Delivery).** The English word *ride* is not a domain term. ADR 0003, 0004 and 0005 use it loosely ("ride offer"); *a later clean-up commit can align their wording to Delivery and Offer without changing any decision*.
