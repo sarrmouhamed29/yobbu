@@ -38,6 +38,7 @@ The project is run as a lightweight **Scrum without calendar dates**. This secti
 - **Architecture Decision Records.** Every structuring decision gets an ADR in [docs/adr/](docs/adr/) (context, options considered, decision, consequences), written and validated **before** implementation. The stack is not assumed; it is chosen through ADRs.
 - **Definition of Done** (every item): code, tests and docs in the same PR; green CI; no secret in the repository; one-command startup still works; anything simulated or untested is documented; ADR written when required.
 - **Iteration review and retrospective.** Each iteration ends with a demo, then a three-line retrospective in the iteration log of [PLAN.md](PLAN.md).
+- **Risk register.** Risks, assumptions and constraints live in [docs/design/constraints-and-risks.md](docs/design/constraints-and-risks.md). The register is reviewed when each phase closes and when an ADR's revisit criterion is met.
 - **Quality gates.** Conventional Commits, small coherent commits, changes through a branch and a well-described PR, tests written with the code, CI kept green.
 
 ## Documentation

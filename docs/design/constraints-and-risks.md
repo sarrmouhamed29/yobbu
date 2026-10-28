@@ -2,7 +2,7 @@
 
 What bounds the design (constraints), what the design takes for granted without proof yet (assumptions), and what could go wrong (risks) with how it is handled. Sources: `docs/PROJECT.md`, `CLAUDE.md`, ADR 0001 to 0009, [non-functional requirements](non-functional-requirements.md).
 
-**Status:** draft, to be confirmed by the owner. The likelihood and impact ratings are an initial judgment, not measurements. Points that need a decision are listed in [Open points](#open-points).
+**Status:** validated by the owner on 2026-10-28. The likelihood and impact ratings are an initial judgment, not measurements; see [Decisions](#decisions).
 
 ## Constraints
 
@@ -61,10 +61,10 @@ Likelihood and impact: **H** high, **M** medium, **L** low. Ordered by priority 
 | R-15 | **Simulator looks artificial,** weakening the demo. | L | M | Realistic speeds and predefined paths; keep it simple and honest in the README. | Couriers move through obstacles on the map. | A-03 |
 | R-16 | **Vulnerable dependencies or images** (supply chain). | L | M | Dependency and image scanning in CI (phase 1.7 and 2); pinned versions. | A scan reports a high severity finding. | `PLAN.md` phase 1.7, 2 |
 
-## Open points
+## Decisions
 
-Proposed answers are in italics.
+Confirmed by the owner.
 
-1. **Ratings are an initial judgment.** *Please adjust any likelihood or impact that feels wrong; the order of the register follows from them.*
-2. **First risks to retire.** R-02 (heavy local stack) and A-01 can only be checked with the skeleton. *They are the first things to measure in phase 0.4, before building more.*
-3. **Review cadence.** *Review this register when each phase closes, and when a revisit criterion of an ADR is met.* If adopted, this is a change to the method and must be added to the Methodology section of `README.md` and to `PLAN.md` in the same pull request.
+1. **Ratings are an initial judgment.** They are adjusted as evidence comes in; the order of the register follows from them.
+2. **First risks to retire.** R-02 (heavy local stack) and A-01 can only be checked with the skeleton. They are the first things to measure in phase 0.4, before building more.
+3. **Review cadence.** This register is reviewed when each phase closes, and when a revisit criterion of an ADR is met. This is part of the method and is recorded in the Methodology section of `README.md` and in `PLAN.md`.

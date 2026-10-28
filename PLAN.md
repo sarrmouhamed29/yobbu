@@ -11,6 +11,7 @@ Scrum allégé, sans calendrier : on mesure l'avancement en **itérations**, pas
 - **Limite de travail en cours** : une itération active à la fois, trois cases ouvertes au maximum.
 - **Revue d'itération** : on démontre le résultat (commande lancée, capture, test vert) puis on coche.
 - **Rétro** : 3 lignes dans la section « Journal » en fin d'itération (ce qui a marché, ce qui a frotté, ce qu'on change).
+- **Registre des risques** : `docs/design/constraints-and-risks.md`, relu à la clôture de chaque phase et quand le critère de révision d'un ADR est atteint.
 - **Décisions structurantes** : toute case marquée `ADR` produit un `docs/adr/NNNN-titre.md` (contexte, options, décision, conséquences) **avant** l'implémentation, avec validation du propriétaire.
 
 ### Definition of Done (toute case)
@@ -76,7 +77,7 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 - [x] `DEV` Glossaire du domaine (langage commun : course, proposition, dispatch, point de retrait, etc.) : `docs/design/glossary.md`
 - [x] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation : `docs/design/use-cases.md`
 - [x] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée : `docs/design/non-functional-requirements.md`
-- [ ] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge)
+- [x] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge) : `docs/design/constraints-and-risks.md`
 - [ ] `DEV` Découpage en domaines et modules (contextes délimités) + carte des contextes : qui possède quelle donnée, qui parle à qui
 
 **Modélisation UML**
