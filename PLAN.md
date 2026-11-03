@@ -114,14 +114,14 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 **Interfaces**
 
-- [ ] `DEV` Parcours utilisateurs et maquettes basse fidélité des quatre interfaces (client, livreur, marchand, opérateur)
-- [ ] `DEV` Conception du mode hors-ligne du livreur : données gardées en local, file des actions, règles de résolution de conflits
+- [x] `DEV` Parcours utilisateurs et maquettes basse fidélité des quatre interfaces (client, livreur, marchand, opérateur)
+- [x] `DEV` Conception du mode hors-ligne du livreur : données gardées en local, file des actions, règles de résolution de conflits
 
 **Revue de conception (critère de sortie)**
 
-- [ ] Relecture croisée : chaque exigence est couverte par un cas d'utilisation, chaque cas par une séquence, chaque donnée a un propriétaire
-- [ ] Cohérence vérifiée entre diagramme de classes, états, modèle de données et événements
-- [ ] Documents indexés dans `docs/README.md`, ADR liés aux diagrammes qu'ils justifient
+- [x] Relecture croisée : chaque exigence est couverte par un cas d'utilisation, chaque cas par une séquence, chaque donnée a un propriétaire
+- [x] Cohérence vérifiée entre diagramme de classes, états, modèle de données et événements
+- [x] Documents indexés dans `docs/README.md`, ADR liés aux diagrammes qu'ils justifient
 
 ### 0.4 Dépôt et squelette
 
