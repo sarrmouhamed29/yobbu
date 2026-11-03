@@ -1,0 +1,51 @@
+@startuml seq-offer-refused
+' Offer refused or expired: dispatch tries next candidate
+
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceParticipantBorderColor #555555
+skinparam sequenceParticipantBackgroundColor #fafafa
+skinparam sequenceLifeLineBorderColor #bbbbbb
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+
+title Offer refused or expired — dispatch tries next candidate\n(Order already in DISPATCHING; Delivery in PENDING)
+
+participant "dispatch" as Dispatch
+actor "Courier A\n(score 92)" as CourierA
+actor "Courier B\n(score 87)" as CourierB
+participant "notification" as Notification
+
+autonumber
+
+Dispatch -> Dispatch : candidates: [A (92), B (87)]\ncreate Offer for Courier A, deadline = now + T
+Dispatch ->> Notification : event: OfferCreated {courierId: A}
+Notification -> CourierA : push: new offer
+
+alt Courier A refuses (COU-02)
+  CourierA -> Dispatch : POST /offers/{id}/refuse
+  Dispatch -> Dispatch : Offer A → REFUSED
+else Offer expires (no answer within T)
+  ... deadline reached ...
+  Dispatch -> Dispatch : Offer A → EXPIRED
+end
+
+Dispatch -> Dispatch : remove A from candidates\nremaining: [B (87)]
+Dispatch -> Dispatch : create Offer for Courier B, deadline = now + T
+Dispatch ->> Notification : event: OfferCreated {courierId: B}
+Notification -> CourierB : push: new offer
+
+CourierB -> Dispatch : POST /offers/{id}/accept
+Dispatch -> Dispatch : Offer B → ACCEPTED
+Dispatch ->> Order : event: DeliveryAssigned {courierId: B}
+Dispatch ->> Notification : event: DeliveryAssigned {courierId: B}
+
+note over Dispatch
+  If all candidates refuse or time out:
+  dispatch publishes a BlockedDelivery alert
+  (→ operator console, SYS-04).
+  Delivery stays PENDING in V1.
+  Reassignment by operator: V2.
+end note
+@enduml

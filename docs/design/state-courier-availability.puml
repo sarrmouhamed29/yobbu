@@ -1,0 +1,33 @@
+@startuml state-courier-availability
+skinparam state {
+  BackgroundColor #fafafa
+  BorderColor #555555
+  ArrowColor #333333
+  FontSize 11
+}
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+
+title Courier Availability — State Machine
+
+[*] --> UNAVAILABLE : courier logs in (default)
+
+UNAVAILABLE --> AVAILABLE : courier sets available (COU-01)
+
+AVAILABLE --> UNAVAILABLE : courier sets unavailable (COU-01)
+AVAILABLE --> UNAVAILABLE : courier logs out (implicit)
+
+AVAILABLE : enters candidate pool for dispatch
+UNAVAILABLE : excluded from dispatch
+
+note right of AVAILABLE
+  Being AVAILABLE does not prevent
+  receiving offers while already on a delivery.
+  The load (activeDeliveries count in
+  CourierSnapshot) is the secondary filter.
+  Maximum simultaneous deliveries per courier:
+  set in ADR 0008.
+end note
+@enduml

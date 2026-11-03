@@ -1,0 +1,114 @@
+@startuml seq-nominal
+' Happy path: order placed → delivery completed
+
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceParticipantBorderColor #555555
+skinparam sequenceParticipantBackgroundColor #fafafa
+skinparam sequenceLifeLineBorderColor #bbbbbb
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+
+title Nominal flow — order placed to delivery completed\n(all client calls pass through gateway; omitted for clarity)
+
+actor Customer
+actor Courier
+participant "order" as Order
+participant "dispatch" as Dispatch
+participant "tracking" as Tracking
+participant "payment" as Payment
+participant "notification" as Notification
+
+autonumber
+
+== Order creation ==
+
+Customer -> Order : POST /orders\n{type, pickupPoint, dropOffPoint}
+activate Order
+Order --> Customer : 202 Accepted {orderId, status: PLACED}
+Order ->> Payment : event: OrderConfirmed
+Order ->> Notification : event: OrderConfirmed
+deactivate Order
+Notification -> Customer : push: order confirmed
+
+== Simulated merchant ==
+
+note over Order
+  Simulated merchant (internal component of order service):
+  auto-confirms and declares ready after a configurable delay
+  (MER-01 + MER-02). No external interface in V1.
+end note
+Order -> Order : [sim] PLACED → CONFIRMED → READY
+Order ->> Dispatch : event: OrderReady {deliveryId, pickupPoint}
+
+== Dispatch ==
+
+activate Dispatch
+Dispatch -> Dispatch : query CourierSnapshot (PostGIS):\navailable couriers near pickupPoint,\nordered by score (ADR 0008)
+Dispatch -> Dispatch : create Offer for top candidate\n{courierId, deadline}
+Dispatch ->> Notification : event: OfferCreated {courierId}
+deactivate Dispatch
+Notification -> Courier : push: new offer
+
+== Offer accepted ==
+
+Courier -> Dispatch : POST /offers/{id}/accept
+activate Dispatch
+Dispatch -> Dispatch : Offer → ACCEPTED
+Dispatch ->> Order : event: DeliveryAssigned {deliveryId, courierId}
+Dispatch ->> Notification : event: DeliveryAssigned
+deactivate Dispatch
+
+activate Order
+Order -> Order : Delivery → ASSIGNED
+Order --> Courier : 200 OK
+deactivate Order
+Notification -> Customer : push: courier assigned
+
+== Live tracking ==
+
+note over Courier, Tracking
+  Courier posts position every ~5 s (COU-05 / SIM).
+  tracking stores the raw position, pushes an SSE update to the
+  customer app, and publishes CourierPositionSampled every 15 s
+  to dispatch (to keep CourierSnapshot current).
+end note
+
+Courier -> Tracking : POST /positions {point, reportedAt, key}
+Tracking -> Customer : SSE: {point, eta}
+Tracking ->> Dispatch : event: CourierPositionSampled
+
+== Pickup ==
+
+Courier -> Order : POST /deliveries/{id}/pickup
+activate Order
+Order -> Order : Delivery → PICKED_UP\nOrder → IN_PROGRESS
+Order ->> Notification : event: PickupConfirmed
+Order --> Courier : 200 OK
+deactivate Order
+Notification -> Customer : push: courier has picked up
+
+...
+
+== Delivery ==
+
+Courier -> Order : POST /deliveries/{id}/deliver
+activate Order
+Order -> Order : Delivery → DELIVERED\nOrder → COMPLETED
+Order ->> Notification : event: DeliveryCompleted
+Order --> Courier : 200 OK
+deactivate Order
+Notification -> Customer : push: order delivered
+
+== Payment (concurrent) ==
+
+note over Payment
+  Payment completes independently:
+  PaymentRecord transitions PENDING → PAID
+  when the simulated provider callback fires.
+  May arrive before or after delivery.
+  See seq-payment diagram.
+end note
+Payment ->> Order : event: PaymentCompleted
+@enduml

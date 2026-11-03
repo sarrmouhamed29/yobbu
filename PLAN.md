@@ -11,6 +11,7 @@ Scrum allégé, sans calendrier : on mesure l'avancement en **itérations**, pas
 - **Limite de travail en cours** : une itération active à la fois, trois cases ouvertes au maximum.
 - **Revue d'itération** : on démontre le résultat (commande lancée, capture, test vert) puis on coche.
 - **Rétro** : 3 lignes dans la section « Journal » en fin d'itération (ce qui a marché, ce qui a frotté, ce qu'on change).
+- **Registre des risques** : `docs/design/constraints-and-risks.md`, relu à la clôture de chaque phase et quand le critère de révision d'un ADR est atteint.
 - **Décisions structurantes** : toute case marquée `ADR` produit un `docs/adr/NNNN-titre.md` (contexte, options, décision, conséquences) **avant** l'implémentation, avec validation du propriétaire.
 
 ### Definition of Done (toute case)
@@ -75,17 +76,17 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 - [x] `ADR` Format des diagrammes : **PlantUML**, sources et SVG versionnés, `scripts/diagrams.sh` (ADR 0009)
 - [x] `DEV` Glossaire du domaine (langage commun : course, proposition, dispatch, point de retrait, etc.) : `docs/design/glossary.md`
 - [x] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation : `docs/design/use-cases.md`
-- [ ] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée
-- [ ] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge)
-- [ ] `DEV` Découpage en domaines et modules (contextes délimités) + carte des contextes : qui possède quelle donnée, qui parle à qui
+- [x] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée : `docs/design/non-functional-requirements.md`
+- [x] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge) : `docs/design/constraints-and-risks.md`
+- [x] `DEV` Découpage en domaines et modules (contextes délimités) + carte des contextes : qui possède quelle donnée, qui parle à qui : `docs/design/domain-breakdown.md`
 
 **Modélisation UML**
 
-- [ ] `DEV` Diagramme de classes du domaine (entités, objets valeur, agrégats, invariants)
-- [ ] `DEV` Diagrammes d'états : commande, livraison, proposition de course, disponibilité du livreur (transitions autorisées et événements déclencheurs)
-- [ ] `DEV` Diagrammes de séquence : flux nominal, refus et expiration d'une proposition, perte de réseau du livreur puis resynchronisation, paiement simulé et rappel idempotent, annulation
-- [ ] `DEV` Diagramme d'activité de l'algorithme de dispatch (candidats, score, repli)
-- [ ] `DEV` Diagramme de composants et diagramme de déploiement (nœuds, conteneurs, réseaux)
+- [x] `DEV` Diagramme de classes du domaine (entités, objets valeur, agrégats, invariants) : `docs/design/class-diagram.md`
+- [x] `DEV` Diagrammes d'états : commande, livraison, proposition de course, disponibilité du livreur (transitions autorisées et événements déclencheurs) : `docs/design/state-diagrams.md`
+- [x] `DEV` Diagrammes de séquence : flux nominal, refus et expiration d'une proposition, perte de réseau du livreur puis resynchronisation, paiement simulé et rappel idempotent, annulation : `docs/design/sequence-diagrams.md`
+- [x] `DEV` Diagramme d'activité de l'algorithme de dispatch (candidats, score, repli) : `docs/design/activity-dispatch.md`
+- [x] `DEV` Diagramme de composants et diagramme de déploiement (nœuds, conteneurs, réseaux) : `docs/design/architecture-diagrams.md`
 
 **Modèle de données**
 

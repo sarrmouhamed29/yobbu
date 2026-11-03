@@ -1,0 +1,50 @@
+@startuml state-order
+skinparam state {
+  BackgroundColor #fafafa
+  BorderColor #555555
+  ArrowColor #333333
+  FontSize 11
+}
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+
+title Order — State Machine
+
+[*] --> PLACED : Customer places order (CUS-01)
+
+PLACED --> CONFIRMED : [auto] merchant confirms (MER-01 sim)
+PLACED --> CANCELLED : customer cancels (CUS-06)
+
+CONFIRMED --> READY : [auto] merchant declares ready (MER-02 sim)
+CONFIRMED --> CANCELLED : customer cancels (CUS-06)
+
+READY --> DISPATCHING : Order publishes OrderReady;\ndispatch starts
+READY --> CANCELLED : customer cancels (CUS-06)
+
+DISPATCHING --> IN_PROGRESS : courier marks pickup (COU-04)\n→ Delivery: PICKED_UP
+DISPATCHING --> CANCELLED : customer cancels (CUS-06)\n[before pickup]
+
+IN_PROGRESS --> COMPLETED : courier marks delivery (COU-04)\n→ Delivery: DELIVERED
+
+COMPLETED --> [*]
+CANCELLED --> [*]
+
+DISPATCHING : if no candidate remains: alert to operator (SYS-04)
+DISPATCHING : order stays DISPATCHING in V1
+
+note right of DISPATCHING
+  Covers two sub-phases:
+  · Delivery PENDING — looking for a courier
+  · Delivery ASSIGNED — courier confirmed,
+    not yet at the pickup point
+  Cancellation is allowed in both sub-phases
+  (before pickup only).
+end note
+
+note right of CANCELLED
+  Payment refund logic:
+  defined in payment design (phase 0.3).
+end note
+@enduml

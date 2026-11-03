@@ -1,0 +1,327 @@
+@startuml class-diagram
+' Yóbbu — Domain Class Diagram (V1)
+'
+' Legend
+'   <<aggregate root>>  owns its consistency boundary; persisted via its own repository
+'   <<entity>>          has identity but is accessed through an aggregate root
+'   <<value object>>    no identity; immutable; compared by value
+'
+' Cross-context references use IDs only — no direct object references across packages.
+
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 11
+skinparam backgroundColor #ffffff
+skinparam ClassBackgroundColor #f9f9f9
+skinparam ClassBorderColor #555555
+skinparam ClassStereotypeFontSize 9
+skinparam PackageBorderColor #999999
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+
+title Yóbbu — Domain Class Diagram (V1)
+
+' ═══════════════════════════════════════════════
+'  Shared value objects (used in multiple contexts)
+' ═══════════════════════════════════════════════
+package "shared" #f3e5f5 {
+
+  class Location <<value object>> {
+    + latitude: double
+    + longitude: double
+    + address: String  {optional}
+    + landmark: String {optional}
+  }
+
+  class Money <<value object>> {
+    + amount: BigDecimal
+    + currency: String
+  }
+  note bottom of Money
+    Simulated — no real
+    financial operations (C-01).
+  end note
+}
+
+' ═══════════════════════════════════════════════
+'  order bounded context
+' ═══════════════════════════════════════════════
+package "order" #fff8e1 {
+
+  class Order <<aggregate root>> {
+    + id: UUID
+    + customerId: UUID
+    + type: OrderType
+    + status: OrderStatus
+    + pickupPoint: Location
+    + dropOffPoint: Location
+    + amount: Money
+    + eta: Duration  {optional, set at assignment}
+    + idempotencyKey: String
+    + createdAt: Instant
+    + updatedAt: Instant
+    --
+    + confirm()
+    + declareReady()
+    + startDispatching()
+    + complete()
+    + cancel()
+  }
+
+  class Delivery <<aggregate root>> {
+    + id: UUID
+    + orderId: UUID
+    + status: DeliveryStatus
+    + assignedCourierId: UUID  {optional}
+    + pickedUpAt: Instant      {optional}
+    + completedAt: Instant     {optional}
+    + cancelledAt: Instant     {optional}
+    --
+    + assign(courierId)
+    + markPickedUp()
+    + markDelivered()
+    + cancel()
+  }
+
+  class AssignmentRecord <<entity>> {
+    + id: UUID
+    + courierId: UUID
+    + assignedAt: Instant
+    + endedAt: Instant {optional}
+    + endReason: AssignmentEndReason {optional}
+  }
+
+  enum OrderType {
+    MEAL
+    PARCEL
+  }
+
+  enum OrderStatus {
+    PLACED
+    CONFIRMED
+    READY
+    DISPATCHING
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+  }
+
+  enum DeliveryStatus {
+    PENDING
+    ASSIGNED
+    PICKED_UP
+    DELIVERED
+    CANCELLED
+  }
+
+  enum AssignmentEndReason {
+    REFUSED
+    EXPIRED
+    REPLACED
+    COMPLETED
+    CANCELLED
+  }
+
+  Delivery "1" *-- "0..*" AssignmentRecord : assignment history >
+  Order ..> OrderType
+  Order ..> OrderStatus
+  Order *-- Location : pickupPoint
+  Order *-- Location : dropOffPoint
+  Order *-- Money
+  Delivery ..> DeliveryStatus
+
+  note right of Order
+    Invariants:
+    - cancel() iff status ∈ {PLACED, CONFIRMED, READY, DISPATCHING}
+    - startDispatching() iff status = READY
+    - IN_PROGRESS iff assignedCourierId is set
+    - COMPLETED iff delivery is DELIVERED
+    - One Order creates exactly one Delivery (V1)
+  end note
+
+  note right of Delivery
+    Invariants:
+    - assign() iff status = PENDING
+    - markPickedUp() iff status = ASSIGNED
+    - markDelivered() iff status = PICKED_UP
+    - cancel() iff status ∈ {PENDING, ASSIGNED}
+    - Each reassignment appends an AssignmentRecord
+  end note
+}
+
+' ═══════════════════════════════════════════════
+'  dispatch bounded context
+' ═══════════════════════════════════════════════
+package "dispatch" #e8f5e9 {
+
+  class Offer <<aggregate root>> {
+    + id: UUID
+    + deliveryId: UUID
+    + courierId: UUID
+    + status: OfferStatus
+    + deadline: Instant
+    + idempotencyKey: String
+    + createdAt: Instant
+    + answeredAt: Instant {optional}
+    --
+    + accept()
+    + refuse()
+    + expire()
+  }
+
+  class CourierSnapshot <<entity>> {
+    + courierId: UUID
+    + availability: CourierAvailability
+    + activeDeliveries: int
+    + lastKnownPosition: Location {optional}
+    + lastPositionAt: Instant    {optional}
+    + lastUpdatedAt: Instant
+  }
+
+  enum OfferStatus {
+    PENDING
+    ACCEPTED
+    REFUSED
+    EXPIRED
+  }
+
+  enum CourierAvailability {
+    AVAILABLE
+    UNAVAILABLE
+  }
+
+  Offer ..> OfferStatus
+  CourierSnapshot ..> CourierAvailability
+  CourierSnapshot *-- Location : lastKnownPosition
+
+  note right of Offer
+    Invariants:
+    - accept()/refuse() iff status = PENDING
+    - expire() iff status = PENDING and now ≥ deadline
+    - At most one PENDING offer per delivery at a time
+    - idempotencyKey prevents duplicate offers on retry
+  end note
+
+  note right of CourierSnapshot
+    Local read model — not an aggregate root.
+    Upserted by CourierPositionSampled events
+    from tracking (one per courier every 15 s).
+    Eventually consistent; staleness tolerance
+    declared in ADR 0008.
+  end note
+}
+
+' ═══════════════════════════════════════════════
+'  tracking bounded context
+' ═══════════════════════════════════════════════
+package "tracking" #e3f2fd {
+
+  class Position <<entity>> {
+    + id: UUID
+    + courierId: UUID
+    + deliveryId: UUID {optional}
+    + point: Location
+    + reportedAt: Instant
+    + receivedAt: Instant
+  }
+
+  Position *-- Location : point
+
+  note right of Position
+    Append-only: never updated after insert.
+    Retention period: TBD in data model (phase 0.3).
+    Positions outside an active delivery are kept
+    for load tests and audit, with a shorter TTL.
+  end note
+}
+
+' ═══════════════════════════════════════════════
+'  payment bounded context
+' ═══════════════════════════════════════════════
+package "payment" #fce4ec {
+
+  class PaymentRecord <<aggregate root>> {
+    + id: UUID
+    + orderId: UUID
+    + idempotencyKey: String
+    + status: PaymentStatus
+    + providerRef: String {optional}
+    + createdAt: Instant
+    + completedAt: Instant {optional}
+    --
+    + complete(providerRef)
+    + fail(reason)
+  }
+
+  enum PaymentStatus {
+    PENDING
+    PAID
+    FAILED
+  }
+
+  PaymentRecord ..> PaymentStatus
+
+  note right of PaymentRecord
+    Invariants:
+    - complete()/fail() iff status = PENDING
+    - Duplicate callbacks (same idempotencyKey)
+      are silently ignored
+    - No real money — simulated provider (C-01)
+  end note
+}
+
+' ═══════════════════════════════════════════════
+'  notification bounded context
+' ═══════════════════════════════════════════════
+package "notification" #f9fbe7 {
+
+  class NotificationRecord <<entity>> {
+    + id: UUID
+    + targetUserId: UUID
+    + channel: NotificationChannel
+    + eventType: String
+    + payload: String
+    + status: NotificationStatus
+    + createdAt: Instant
+    + sentAt: Instant        {optional}
+    + failureReason: String  {optional}
+  }
+
+  enum NotificationChannel {
+    IN_APP
+    SMS
+    EMAIL
+  }
+
+  enum NotificationStatus {
+    PENDING
+    SENT
+    FAILED
+  }
+
+  NotificationRecord ..> NotificationChannel
+  NotificationRecord ..> NotificationStatus
+
+  note right of NotificationRecord
+    SMS and email: logged only in V1
+    (simulated — no real sending).
+    In-app: pushed via SSE connection.
+  end note
+}
+
+' ═══════════════════════════════════════════════
+'  Cross-context ID references (by value only)
+' ═══════════════════════════════════════════════
+note as IDRefs
+  Cross-context references — IDs only, no shared tables:
+  ─────────────────────────────────────────────────
+  Delivery.orderId         → Order.id
+  Offer.deliveryId         → Delivery.id
+  AssignmentRecord         (inside Delivery)
+  CourierSnapshot.courierId → Courier account in Keycloak
+  Position.courierId        → Courier account in Keycloak
+  Position.deliveryId       → Delivery.id  (optional)
+  PaymentRecord.orderId     → Order.id
+  NotificationRecord.targetUserId → user in Keycloak
+end note
+
+@enduml

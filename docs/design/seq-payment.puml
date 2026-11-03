@@ -1,0 +1,63 @@
+@startuml seq-payment
+' Simulated payment with idempotent callback
+
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceParticipantBorderColor #555555
+skinparam sequenceParticipantBackgroundColor #fafafa
+skinparam sequenceLifeLineBorderColor #bbbbbb
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+
+title Simulated payment — idempotent callback\n(ADR 0004: idempotent consumers; no real money — C-01)
+
+participant "order" as Order
+participant "payment" as Payment
+participant "Simulated Provider\n(internal timer)" as Provider
+participant "notification" as Notification
+
+autonumber
+
+== Payment initiation ==
+
+Order ->> Payment : event: OrderConfirmed\n{orderId, amount, idempotencyKey=ik-42}
+activate Payment
+Payment -> Payment : check idempotencyKey: new\ncreate PaymentRecord\n{orderId, key=ik-42, status: PENDING}
+deactivate Payment
+
+== Simulated provider callback ==
+
+note over Provider
+  Internal timer fires after a configurable delay.
+  Simulates the mobile money provider sending a
+  payment confirmation callback. No real network call.
+end note
+
+Provider -> Payment : POST /payments/callback\n{orderId, status: PAID, ref="sim-001", key=ik-42}
+activate Payment
+Payment -> Payment : check idempotencyKey ik-42: matches PENDING record\nPaymentRecord → PAID, providerRef="sim-001"
+Payment ->> Order : event: PaymentCompleted {orderId, ref="sim-001"}
+Payment ->> Notification : event: PaymentCompleted {orderId}
+Payment --> Provider : 200 OK
+deactivate Payment
+
+Order -> Order : update payment status → PAID
+Notification -> Customer : push: payment confirmed
+
+== Duplicate callback (idempotency check) ==
+
+note over Provider : Provider retries (network glitch before 200 OK was received).
+
+Provider -> Payment : POST /payments/callback\n{orderId, status: PAID, ref="sim-001", key=ik-42}
+activate Payment
+Payment -> Payment : check idempotencyKey ik-42: already PAID\nsilently ignore
+Payment --> Provider : 200 OK  (idempotent)
+deactivate Payment
+
+note right of Payment
+  Same idempotencyKey → same result,
+  no second event published, no error.
+  (ADR 0004)
+end note
+@enduml
