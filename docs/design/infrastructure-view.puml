@@ -1,0 +1,114 @@
+@startuml infrastructure-view
+
+title Yóbbu — Infrastructure View (V1 Development Environment)\nDocker Compose network topology
+
+skinparam defaultFontSize 9
+skinparam backgroundColor #ffffff
+skinparam ArrowColor #555555
+skinparam ArrowThickness 1.2
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+
+skinparam node {
+  BackgroundColor #fafafa
+  BorderColor #555555
+}
+skinparam package {
+  BorderColor #aaaaaa
+}
+skinparam database {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+}
+skinparam component {
+  BackgroundColor #BBDEFB
+  BorderColor #1565C0
+}
+
+' ── Internet / developer browser ─────────────────────────
+actor "Browser\n(dev machine)" as Browser
+
+' ── Docker Compose host ───────────────────────────────────
+package "Docker Compose host" {
+
+  ' ── frontend-net ────────────────────────────────────────
+  package "frontend-net (bridge)" #fff8e1 {
+    node "nginx :80\n[reverse proxy + static]" as Nginx
+    component "customer-app :3001" as CA
+    component "courier-app   :3002" as CouA
+    component "operator-app  :3003" as OA
+    Nginx --> CA
+    Nginx --> CouA
+    Nginx --> OA
+  }
+
+  ' ── backend-net ─────────────────────────────────────────
+  package "backend-net (bridge)" #e8f5e9 {
+    node "gateway :8080\n[Spring Cloud Gateway]" as GW
+    node "order-svc    :8081" as OS
+    node "dispatch-svc :8082" as DS
+    node "tracking-svc :8083" as TS
+    node "payment-svc  :8084" as PS
+    node "notif-svc    :8085" as NS
+    node "simulator    :8086\n[Courier Simulator]" as SIM
+  }
+
+  ' ── data-net ─────────────────────────────────────────────
+  package "data-net (bridge)" #fce4ec {
+    database "postgres :5432\n[5 schemas + PostGIS]" as PG
+    node "kafka     :9092\n[+ zookeeper :2181]" as KF
+    node "keycloak  :8180\n[+ postgres-kc :5433]" as KC
+  }
+}
+
+' ── External ──────────────────────────────────────────────
+rectangle "Map Tiles CDN\n[External — TBD]" as Tiles #eeeeee
+rectangle "Simulated Notif\n[stub — V1]" as NotifStub #eeeeee
+
+' ── Network flows ─────────────────────────────────────────
+Browser --> Nginx   : HTTP :80 (exposed)
+Nginx   --> GW      : HTTP (internal)
+
+GW  --> OS  : HTTP
+GW  --> DS  : HTTP
+GW  --> TS  : HTTP + SSE
+GW  --> PS  : HTTP
+GW  --> NS  : HTTP
+GW  ..> KC  : JWKS fetch (startup)
+
+OS  --> PG
+DS  --> PG
+TS  --> PG
+PS  --> PG
+NS  --> PG
+
+OS  --> KF
+DS  --> KF
+TS  --> KF
+PS  --> KF
+NS  --> KF
+
+SIM --> GW  : POST /positions (batch)
+
+NS  --> NotifStub
+
+note right of Tiles
+  Browser fetches map tiles directly
+  from the CDN (URL returned by tracking-svc
+  in SSE metadata). Not proxied by gateway.
+end note
+
+note bottom of KC
+  Keycloak uses its own dedicated
+  Postgres instance (postgres-kc)
+  to avoid mixing schemas.
+end note
+
+note right of KF
+  Kafka volumes: /var/lib/kafka/data
+  Postgres volumes: /var/lib/postgresql/data
+  Both are Docker named volumes,
+  persisted across container restarts.
+end note
+
+@enduml

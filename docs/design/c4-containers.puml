@@ -1,0 +1,107 @@
+@startuml c4-containers
+
+title Yóbbu — Containers (C4 Level 2)
+
+skinparam defaultFontSize 9
+skinparam backgroundColor #ffffff
+skinparam ArrowColor #444444
+skinparam ArrowThickness 1.2
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+
+skinparam actor {
+  BackgroundColor #FFF9C4
+  BorderColor #F9A825
+}
+skinparam package {
+  BackgroundColor #fafafa
+  BorderColor #aaaaaa
+}
+skinparam component {
+  BackgroundColor #BBDEFB
+  BorderColor #1565C0
+}
+skinparam database {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+}
+skinparam queue {
+  BackgroundColor #FCE4EC
+  BorderColor #880E4F
+}
+skinparam rectangle {
+  BackgroundColor #F5F5F5
+  BorderColor #9E9E9E
+}
+
+' ── External actors ──────────────────────────────────────
+actor "Customer" as Customer
+actor "Courier"  as Courier
+actor "Operator" as Operator
+
+' ── External systems ─────────────────────────────────────
+rectangle "Keycloak\n[Identity Provider]\n:8180" as Keycloak #eeeeee
+rectangle "Notification Channels\n[Simulated V1]" as Notif #eeeeee
+rectangle "Map Tiles Provider\n[External / TBD]" as Tiles #eeeeee
+
+' ── Yóbbu system boundary ────────────────────────────────
+package "Yóbbu [Software System]" {
+
+  ' Frontends
+  package "Frontend :3001–3003" #fff8e1 {
+    component "Customer PWA\n[React + TypeScript + Vite]\nOrder creation, live map, history" as CustomerPWA
+    component "Courier PWA\n[React + TypeScript + Vite]\nOffers, status updates, offline queue" as CourierPWA
+    component "Operator Console\n[React + TypeScript + Vite]\nDelivery map, alert list, metrics" as OperatorConsole
+  }
+
+  ' API Gateway
+  component "API Gateway\n[Spring Cloud Gateway]\n:8080 — JWT validation, routing,\nrate limiting" as Gateway
+
+  ' Backend services
+  package "Backend Services :8081–8085" #e8f5e9 {
+    component "order-svc\n[Spring Boot]\n:8081 — Order & Delivery lifecycle,\nmerchant simulation" as OrderSvc
+    component "dispatch-svc\n[Spring Boot]\n:8082 — Courier selection algorithm,\noffer lifecycle, courier snapshots" as DispatchSvc
+    component "tracking-svc\n[Spring Boot]\n:8083 — Position ingestion,\nSSE streaming" as TrackingSvc
+    component "payment-svc\n[Spring Boot]\n:8084 — Simulated mobile money,\nidempotent callbacks" as PaymentSvc
+    component "notification-svc\n[Spring Boot]\n:8085 — Push / SMS / email dispatch,\nnotification records" as NotifSvc
+  }
+
+  ' Simulator
+  component "Courier Simulator\n[Spring Boot — internal]\nMoves synthetic couriers on the map;\nused for demo and load tests" as Simulator
+
+  ' Infrastructure
+  package "Infrastructure" #fce4ec {
+    database "PostgreSQL :5432\n[5 schemas]\nOne schema per service;\nPostGIS extension" as Postgres
+    queue    "Apache Kafka :9092\n[+ Zookeeper :2181]\nDomain event bus;\ncross-service async communication" as Kafka
+  }
+}
+
+' ── Relationships ─────────────────────────────────────────
+Customer       --> Gateway       : HTTPS
+Courier        --> Gateway       : HTTPS (+ SSE subscription)
+Operator       --> Gateway       : HTTPS
+Simulator      --> Gateway       : HTTPS (position reports)
+
+Gateway --> OrderSvc     : HTTP/REST
+Gateway --> DispatchSvc  : HTTP/REST
+Gateway --> TrackingSvc  : HTTP/REST (+ SSE upgrade)
+Gateway --> PaymentSvc   : HTTP/REST
+Gateway --> NotifSvc     : HTTP/REST
+Gateway ..> Keycloak     : JWKS key fetch (startup + rotation)
+
+OrderSvc    --> Postgres : order schema (JDBC)
+DispatchSvc --> Postgres : dispatch schema (JDBC)
+TrackingSvc --> Postgres : tracking schema (JDBC)
+PaymentSvc  --> Postgres : payment schema (JDBC)
+NotifSvc    --> Postgres : notification schema (JDBC)
+
+OrderSvc    --> Kafka : publishes order-events
+DispatchSvc --> Kafka : publishes dispatch-events\nconsumes order-events, position-events
+TrackingSvc --> Kafka : publishes position-events\nconsumes dispatch-events
+PaymentSvc  --> Kafka : publishes payment-events\nconsumes order-events
+NotifSvc    --> Kafka : consumes all event topics
+
+NotifSvc    --> Notif  : sends notifications (simulated)
+TrackingSvc --> Tiles  : SSE response carries tile-server URL\n(client fetches tiles directly)
+
+@enduml
