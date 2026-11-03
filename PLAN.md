@@ -82,7 +82,7 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 **Modélisation UML**
 
-- [ ] `DEV` Diagramme de classes du domaine (entités, objets valeur, agrégats, invariants)
+- [x] `DEV` Diagramme de classes du domaine (entités, objets valeur, agrégats, invariants) : `docs/design/class-diagram.md`
 - [ ] `DEV` Diagrammes d'états : commande, livraison, proposition de course, disponibilité du livreur (transitions autorisées et événements déclencheurs)
 - [ ] `DEV` Diagrammes de séquence : flux nominal, refus et expiration d'une proposition, perte de réseau du livreur puis resynchronisation, paiement simulé et rappel idempotent, annulation
 - [ ] `DEV` Diagramme d'activité de l'algorithme de dispatch (candidats, score, repli)
