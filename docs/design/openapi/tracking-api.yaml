@@ -1,0 +1,272 @@
+openapi: 3.1.0
+info:
+  title: Yóbbu — Tracking API
+  version: 1.0.0
+  description: |
+    Position ingestion (single and batch) and real-time SSE streaming.
+    Couriers POST their position; clients subscribe to SSE streams to receive live updates.
+servers:
+  - url: /api/v1
+    description: Via API Gateway
+
+security:
+  - bearerAuth: []
+
+paths:
+  /positions:
+    post:
+      summary: Report a single position (courier)
+      operationId: reportPosition
+      tags: [Positions]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PositionReport'
+      responses:
+        '201':
+          description: Position recorded
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /positions/batch:
+    post:
+      summary: Report multiple positions (courier — used on reconnect after offline period)
+      operationId: reportPositionBatch
+      tags: [Positions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PositionBatchRequest'
+            example:
+              positions:
+                - idempotencyKey: "550e8400-e29b-41d4-a716-000000000001"
+                  lat: 14.6928
+                  lon: -17.4467
+                  reportedAt: "2026-11-03T10:00:00Z"
+                - idempotencyKey: "550e8400-e29b-41d4-a716-000000000002"
+                  lat: 14.6935
+                  lon: -17.4460
+                  reportedAt: "2026-11-03T10:00:05Z"
+      responses:
+        '200':
+          description: Batch processed; counts of stored and deduplicated entries returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /couriers/{id}/position:
+    get:
+      summary: Get a courier's latest known position
+      operationId: getCourierLatestPosition
+      tags: [Couriers]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Latest position found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PositionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: No position recorded for this courier
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /couriers/{id}/stream:
+    get:
+      summary: Subscribe to live position updates for a courier (SSE)
+      operationId: streamCourierPosition
+      tags: [Couriers]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: |
+            Server-Sent Events stream. Each event is a JSON-serialized PositionResponse.
+
+            Event format:
+            ```
+            event: position
+            data: {"courierId":"…","lat":14.6928,"lon":-17.4467,"reportedAt":"…"}
+
+            event: ping
+            data: {}
+            ```
+
+            `ping` events are sent every 30 s to keep the connection alive.
+            The client should reconnect on connection close (standard SSE retry behaviour).
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    PositionReport:
+      type: object
+      required: [lat, lon, reportedAt]
+      properties:
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+        reportedAt:
+          type: string
+          format: date-time
+          description: Device clock time when the position was captured (UTC)
+
+    PositionBatchRequest:
+      type: object
+      required: [positions]
+      properties:
+        positions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PositionBatchEntry'
+          minItems: 1
+          maxItems: 500
+
+    PositionBatchEntry:
+      type: object
+      required: [idempotencyKey, lat, lon, reportedAt]
+      properties:
+        idempotencyKey:
+          type: string
+          format: uuid
+          description: Client-generated UUID; duplicates are silently dropped
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        reportedAt:
+          type: string
+          format: date-time
+
+    PositionResponse:
+      type: object
+      properties:
+        courierId:
+          type: string
+          format: uuid
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        reportedAt:
+          type: string
+          format: date-time
+
+    BatchResult:
+      type: object
+      properties:
+        stored:
+          type: integer
+          description: Number of new positions stored
+        deduplicated:
+          type: integer
+          description: Number of positions already known (duplicate idempotency keys)
+        total:
+          type: integer
+          description: Total positions in the request (stored + deduplicated)
+
+    Problem:
+      type: object
+      required: [type, title, status, traceId]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        traceId:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Forbidden:
+      description: Insufficient role or resource ownership
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
