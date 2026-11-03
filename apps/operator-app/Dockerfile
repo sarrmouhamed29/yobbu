@@ -1,9 +1,9 @@
 # Stage 1: build
 FROM node:20-alpine AS build
 WORKDIR /app
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 COPY package.json ./
-RUN pnpm install
+RUN pnpm install --ignore-scripts
 COPY . .
 RUN pnpm build
 
