@@ -107,10 +107,10 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 **Contrats et conventions**
 
-- [ ] `DEV` Conception de l'API d'abord (OpenAPI rédigé avant le code) : ressources, erreurs, pagination, versionnement, idempotence
-- [ ] `DEV` Conventions : nommage, structure des modules, gestion des erreurs, journalisation
-- [ ] `OBS` Plan d'observabilité : logs, métriques, traces, identifiant de corrélation d'une commande, premiers SLO
-- [ ] `TEST` Stratégie de test (pyramide, données de test, contrats, charge) et plan de résilience (modes de panne et comportement attendu de chaque composant)
+- [x] `DEV` Conception de l'API d'abord (OpenAPI rédigé avant le code) : ressources, erreurs, pagination, versionnement, idempotence
+- [x] `DEV` Conventions : nommage, structure des modules, gestion des erreurs, journalisation
+- [x] `OBS` Plan d'observabilité : logs, métriques, traces, identifiant de corrélation d'une commande, premiers SLO
+- [x] `TEST` Stratégie de test (pyramide, données de test, contrats, charge) et plan de résilience (modes de panne et comportement attendu de chaque composant)
 
 **Interfaces**
 

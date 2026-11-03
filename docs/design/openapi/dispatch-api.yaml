@@ -1,0 +1,230 @@
+openapi: 3.1.0
+info:
+  title: Yóbbu — Dispatch API
+  version: 1.0.0
+  description: |
+    Offer lifecycle (courier accepts / refuses) and courier availability toggle.
+    Couriers interact with these endpoints; operators read offer state.
+servers:
+  - url: /api/v1
+    description: Via API Gateway
+
+security:
+  - bearerAuth: []
+
+paths:
+  /offers/{id}:
+    get:
+      summary: Get offer details (courier sees the delivery info before accepting)
+      operationId: getOffer
+      tags: [Offers]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Offer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /offers/{id}/accept:
+    post:
+      summary: Accept an offer (courier only)
+      operationId: acceptOffer
+      tags: [Offers]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '204':
+          description: Offer accepted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Offer is no longer PENDING (already answered or expired)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /offers/{id}/refuse:
+    post:
+      summary: Refuse an offer (courier only)
+      operationId: refuseOffer
+      tags: [Offers]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '204':
+          description: Offer refused
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Offer is no longer PENDING
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /couriers/{id}/availability:
+    put:
+      summary: Set courier availability
+      operationId: setCourierAvailability
+      tags: [Couriers]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetAvailabilityRequest'
+            example:
+              availability: AVAILABLE
+      responses:
+        '204':
+          description: Availability updated
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    OfferStatus:
+      type: string
+      enum: [PENDING, ACCEPTED, REFUSED, EXPIRED, CANCELLED]
+
+    OfferResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deliveryId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/OfferStatus'
+        deadline:
+          type: string
+          format: date-time
+          description: Offer expires at this time if not answered
+        pickupPoint:
+          $ref: '#/components/schemas/Point'
+        pickupAddress:
+          type: string
+        dropoffPoint:
+          $ref: '#/components/schemas/Point'
+        dropoffAddress:
+          type: string
+        estimatedDistanceMeters:
+          type: integer
+          description: Straight-line distance from courier to pickup point (informational)
+        createdAt:
+          type: string
+          format: date-time
+
+    Point:
+      type: object
+      required: [lat, lon]
+      properties:
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+
+    SetAvailabilityRequest:
+      type: object
+      required: [availability]
+      properties:
+        availability:
+          type: string
+          enum: [AVAILABLE, UNAVAILABLE]
+
+    Problem:
+      type: object
+      required: [type, title, status, traceId]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        traceId:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Forbidden:
+      description: Insufficient role or resource ownership
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    BadRequest:
+      description: Validation error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'

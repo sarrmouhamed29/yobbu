@@ -1,0 +1,410 @@
+openapi: 3.1.0
+info:
+  title: Yóbbu — Order API
+  version: 1.0.0
+  description: |
+    Order and delivery lifecycle: place an order, track its state, cancel it,
+    and report pickup/delivery as a courier.
+    All endpoints require a valid Bearer JWT issued by Keycloak.
+servers:
+  - url: /api/v1
+    description: Via API Gateway (development — http://localhost/api/v1)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /orders:
+    post:
+      summary: Place an order
+      operationId: placeOrder
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequest'
+            example:
+              type: MEAL
+              pickupPoint: { lat: 14.6928, lon: -17.4467 }
+              pickupAddress: "3 Avenue Cheikh Anta Diop"
+              pickupLandmark: "Devant la pharmacie verte"
+              dropoffPoint: { lat: 14.7011, lon: -17.4382 }
+              dropoffAddress: "Rue 10, Mermoz"
+              amountValue: 3500
+              amountCurrency: XOF
+              idempotencyKey: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+    get:
+      summary: List my orders (paginated)
+      operationId: listOrders
+      tags: [Orders]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Paginated list of orders
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /orders/{id}:
+    get:
+      summary: Get order details
+      operationId: getOrder
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /orders/{id}/cancel:
+    post:
+      summary: Cancel an order (customer — before pickup only)
+      operationId: cancelOrder
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '204':
+          description: Order cancelled
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Cannot cancel — order has already been picked up
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /orders/{id}/pickup:
+    post:
+      summary: Confirm pickup (courier only)
+      operationId: confirmPickup
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '204':
+          description: Pickup confirmed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Delivery is not in ASSIGNED state
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /orders/{id}/deliver:
+    post:
+      summary: Confirm delivery (courier only)
+      operationId: confirmDelivery
+      tags: [Orders]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '204':
+          description: Delivery confirmed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Delivery is not in PICKED_UP state
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /orders/{id}/delivery:
+    get:
+      summary: Get delivery status for an order
+      operationId: getDelivery
+      tags: [Deliveries]
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Delivery found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT issued by Keycloak (OIDC). Roles: CUSTOMER, COURIER, OPERATOR.
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Client-generated UUID v4. Same key on retry returns the original response.
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+      description: Opaque cursor from a previous response's pagination.nextCursor
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+  schemas:
+    Point:
+      type: object
+      required: [lat, lon]
+      properties:
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+
+    OrderStatus:
+      type: string
+      enum: [PLACED, CONFIRMED, READY, DISPATCHING, IN_PROGRESS, COMPLETED, CANCELLED]
+
+    DeliveryStatus:
+      type: string
+      enum: [PENDING, ASSIGNED, PICKED_UP, DELIVERED, CANCELLED]
+
+    PlaceOrderRequest:
+      type: object
+      required: [type, pickupPoint, dropoffPoint, amountValue, amountCurrency, idempotencyKey]
+      properties:
+        type:
+          type: string
+          enum: [MEAL, PARCEL]
+        pickupPoint:
+          $ref: '#/components/schemas/Point'
+        pickupAddress:
+          type: string
+          maxLength: 500
+        pickupLandmark:
+          type: string
+          maxLength: 200
+        dropoffPoint:
+          $ref: '#/components/schemas/Point'
+        dropoffAddress:
+          type: string
+          maxLength: 500
+        dropoffLandmark:
+          type: string
+          maxLength: 200
+        amountValue:
+          type: number
+          format: decimal
+          minimum: 0
+          exclusiveMinimum: true
+        amountCurrency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: XOF
+        idempotencyKey:
+          type: string
+          format: uuid
+
+    OrderResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [MEAL, PARCEL]
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        pickupPoint:
+          $ref: '#/components/schemas/Point'
+        pickupAddress:
+          type: string
+        dropoffPoint:
+          $ref: '#/components/schemas/Point'
+        dropoffAddress:
+          type: string
+        amountValue:
+          type: number
+        amountCurrency:
+          type: string
+        etaSeconds:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    DeliveryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+        assignedCourierId:
+          type: string
+          format: uuid
+          nullable: true
+        pickedUpAt:
+          type: string
+          format: date-time
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    OrderListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    Pagination:
+      type: object
+      properties:
+        nextCursor:
+          type: string
+          nullable: true
+        hasMore:
+          type: boolean
+        pageSize:
+          type: integer
+
+    Problem:
+      type: object
+      required: [type, title, status, traceId]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        traceId:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Forbidden:
+      description: Insufficient role or resource ownership
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    TooManyRequests:
+      description: Rate limit exceeded
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
