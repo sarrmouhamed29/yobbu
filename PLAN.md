@@ -90,11 +90,11 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 **Modèle de données**
 
-- [ ] `DEV` Modèle conceptuel puis modèle logique (diagramme entité-association) avec règles d'intégrité
-- [ ] `DEV` Modèle physique : types, clés, contraintes, index (dont index géographiques), partitionnement éventuel des positions
-- [ ] `DEV` Stratégie de migration, de volumétrie et de rétention (surtout les positions, volumineuses)
-- [ ] `DEV` Traçabilité : journal d'audit de chaque livraison, historisation des changements d'état
-- [ ] `SEC` Classification des données personnelles (ce qu'on stocke, pourquoi, combien de temps, qui y accède)
+- [x] `DEV` Modèle conceptuel puis modèle logique (diagramme entité-association) avec règles d'intégrité
+- [x] `DEV` Modèle physique : types, clés, contraintes, index (dont index géographiques), partitionnement éventuel des positions
+- [x] `DEV` Stratégie de migration, de volumétrie et de rétention (surtout les positions, volumineuses)
+- [x] `DEV` Traçabilité : journal d'audit de chaque livraison, historisation des changements d'état
+- [x] `SEC` Classification des données personnelles (ce qu'on stocke, pourquoi, combien de temps, qui y accède)
 
 **Architecture (vues complémentaires)**
 

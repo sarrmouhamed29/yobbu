@@ -1,0 +1,189 @@
+@startuml erd-logical
+
+title Yóbbu — Logical ERD (V1)\nEach package = one service schema. Cross-schema lines are dashed (UUID ref only, no DB constraint).
+
+skinparam packageBackgroundColor #fafafa
+skinparam packageBorderColor #aaaaaa
+skinparam entityBackgroundColor #ffffff
+skinparam entityBorderColor #555555
+skinparam arrowColor #333333
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+skinparam linetype ortho
+
+' ════════════════════════════════════════════
+' order schema
+' ════════════════════════════════════════════
+package "order schema" #fff8e1 {
+
+  entity "orders" as Order {
+    * id : uuid <<PK>>
+    --
+    customer_id : uuid
+    * type : order_type
+    * status : order_status
+    * pickup_point : geography
+    pickup_address : text
+    pickup_landmark : text
+    * dropoff_point : geography
+    dropoff_address : text
+    dropoff_landmark : text
+    * amount_value : numeric(12,2)
+    * amount_currency : char(3)
+    eta_seconds : integer
+    * idempotency_key : varchar(255)
+    * created_at : timestamptz
+    * updated_at : timestamptz
+  }
+
+  entity "deliveries" as Delivery {
+    * id : uuid <<PK>>
+    --
+    * order_id : uuid <<FK→orders>>
+    * status : delivery_status
+    assigned_courier_id : uuid
+    picked_up_at : timestamptz
+    completed_at : timestamptz
+    cancelled_at : timestamptz
+    * created_at : timestamptz
+    * updated_at : timestamptz
+  }
+
+  entity "assignment_records" as AR {
+    * id : uuid <<PK>>
+    --
+    * delivery_id : uuid <<FK→deliveries>>
+    * courier_id : uuid
+    * assigned_at : timestamptz
+    ended_at : timestamptz
+    end_reason : varchar(30)
+  }
+
+  entity "order_status_history" as OSH {
+    * id : uuid <<PK>>
+    --
+    * order_id : uuid <<FK→orders>>
+    * from_status : order_status
+    * to_status : order_status
+    * changed_at : timestamptz
+    * trigger_event : varchar(100)
+  }
+
+  entity "delivery_status_history" as DSH {
+    * id : uuid <<PK>>
+    --
+    * delivery_id : uuid <<FK→deliveries>>
+    * from_status : delivery_status
+    * to_status : delivery_status
+    * changed_at : timestamptz
+    * trigger_event : varchar(100)
+  }
+}
+
+Order ||--|| Delivery : ""
+Delivery ||--|{ AR : "history"
+Order ||--|{ OSH : "audit"
+Delivery ||--|{ DSH : "audit"
+
+' ════════════════════════════════════════════
+' dispatch schema
+' ════════════════════════════════════════════
+package "dispatch schema" #e8f5e9 {
+
+  entity "offers" as Offer {
+    * id : uuid <<PK>>
+    --
+    * delivery_id : uuid [cross-schema]
+    * courier_id : uuid
+    * status : offer_status
+    * deadline : timestamptz
+    * idempotency_key : varchar(255)
+    * created_at : timestamptz
+    answered_at : timestamptz
+  }
+
+  entity "courier_snapshots" as CS {
+    * courier_id : uuid <<PK>>
+    --
+    * availability : courier_availability
+    * active_deliveries : integer
+    last_known_position : geography
+    last_position_at : timestamptz
+    * last_updated_at : timestamptz
+  }
+}
+
+' ════════════════════════════════════════════
+' tracking schema
+' ════════════════════════════════════════════
+package "tracking schema" #e3f2fd {
+
+  entity "positions" as Pos {
+    * id : uuid <<PK>>
+    --
+    * courier_id : uuid
+    delivery_id : uuid [cross-schema, nullable]
+    * point : geography
+    * reported_at : timestamptz
+    * received_at : timestamptz
+    * idempotency_key : varchar(255)
+  }
+}
+
+' ════════════════════════════════════════════
+' payment schema
+' ════════════════════════════════════════════
+package "payment schema" #fce4ec {
+
+  entity "payment_records" as PR {
+    * id : uuid <<PK>>
+    --
+    * order_id : uuid <<unique, cross-schema>>
+    * idempotency_key : varchar(255)
+    * status : payment_status
+    provider_ref : varchar(255)
+    * amount_value : numeric(12,2)
+    * amount_currency : char(3)
+    * created_at : timestamptz
+    completed_at : timestamptz
+  }
+}
+
+' ════════════════════════════════════════════
+' notification schema
+' ════════════════════════════════════════════
+package "notification schema" #f9fbe7 {
+
+  entity "notification_records" as NR {
+    * id : uuid <<PK>>
+    --
+    * target_user_id : uuid
+    * channel : notification_channel
+    * event_type : varchar(100)
+    * payload : text
+    * status : notification_status
+    * created_at : timestamptz
+    sent_at : timestamptz
+    failure_reason : text
+  }
+}
+
+' ════════════════════════════════════════════
+' Cross-schema UUID references (dashed — no DB FK)
+' ════════════════════════════════════════════
+Delivery ..> Offer : "delivery_id (UUID ref)"
+Delivery ..> Pos : "delivery_id (UUID ref)"
+Order ..> PR : "order_id (UUID ref)"
+
+note as N1
+  * = NOT NULL
+  Nullable fields have no asterisk.
+  geography = GEOGRAPHY(POINT, 4326) (PostGIS)
+  Cross-schema refs: UUID only, enforced at service level.
+  Keycloak user IDs: customer_id, courier_id,
+  assigned_courier_id, target_user_id.
+end note
+
+@enduml
