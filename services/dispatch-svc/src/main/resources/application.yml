@@ -1,6 +1,22 @@
 spring:
   application:
     name: dispatch-svc
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/yobbu?currentSchema=dispatch}
+    username: ${DB_USER:yobbu_dispatch}
+    password: ${DB_PASSWORD_DISPATCH}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: dispatch
+  flyway:
+    schemas: dispatch
+    default-schema: dispatch
+    validate-on-migrate: true
 
 server:
   port: ${PORT:8082}
