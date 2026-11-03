@@ -7,6 +7,9 @@ import com.yobbu.order.domain.port.in.CreateOrderUseCase;
 import com.yobbu.order.domain.port.in.CreateOrderUseCase.CreateOrderCommand;
 import com.yobbu.order.domain.port.in.GetOrderUseCase;
 import com.yobbu.order.domain.port.in.TransitionOrderUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Orders", description = "Order lifecycle management")
 @RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
@@ -29,6 +33,9 @@ public class OrderController {
         this.transition = transition;
     }
 
+    @Operation(summary = "Create a new order")
+    @ApiResponse(responseCode = "201", description = "Order created")
+    @ApiResponse(responseCode = "400", description = "Invalid request body")
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(
             @Valid @RequestBody CreateOrderRequest req,
@@ -47,11 +54,15 @@ public class OrderController {
         return ResponseEntity.created(uri).body(OrderResponse.from(order));
     }
 
+    @Operation(summary = "Get an order by ID")
+    @ApiResponse(responseCode = "200", description = "Order found")
+    @ApiResponse(responseCode = "404", description = "Order not found")
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponse> getOrder(@PathVariable UUID id) {
         return ResponseEntity.ok(OrderResponse.from(get.getById(id)));
     }
 
+    @Operation(summary = "List orders for a customer")
     @GetMapping
     public ResponseEntity<List<OrderResponse>> listOrders(@RequestParam UUID customerId) {
         var orders = get.getByCustomer(customerId).stream()
@@ -60,6 +71,11 @@ public class OrderController {
         return ResponseEntity.ok(orders);
     }
 
+    @Operation(summary = "Apply a state transition to an order",
+               description = "Allowed transitions: PENDING→CONFIRM, CONFIRMED→MARK_READY, READY→PICK_UP, PICKED_UP→DELIVER, PENDING/CONFIRMED→CANCEL")
+    @ApiResponse(responseCode = "200", description = "Transition applied")
+    @ApiResponse(responseCode = "404", description = "Order not found")
+    @ApiResponse(responseCode = "422", description = "Transition not allowed from current state")
     @PostMapping("/{id}/transitions")
     public ResponseEntity<OrderResponse> applyTransition(
             @PathVariable UUID id,

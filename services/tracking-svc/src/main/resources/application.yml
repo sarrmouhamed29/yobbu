@@ -21,6 +21,13 @@ spring:
 server:
   port: ${PORT:8083}
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
 management:
   endpoints:
     web:

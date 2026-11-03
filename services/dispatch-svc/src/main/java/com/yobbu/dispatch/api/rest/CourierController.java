@@ -3,6 +3,8 @@ package com.yobbu.dispatch.api.rest;
 import com.yobbu.dispatch.domain.model.Courier;
 import com.yobbu.dispatch.domain.model.CourierStatus;
 import com.yobbu.dispatch.infrastructure.persistence.JpaCourierRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Tag(name = "Couriers", description = "Courier management — stub, full dispatch logic in phase 1.3")
 @RestController
 @RequestMapping("/api/v1/couriers")
 public class CourierController {
