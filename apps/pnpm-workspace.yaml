@@ -1,0 +1,4 @@
+packages:
+  - 'customer-app'
+  - 'courier-app'
+  - 'operator-app'

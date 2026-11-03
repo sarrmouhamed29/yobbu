@@ -1,0 +1,42 @@
+# Secrets — never commit real values
+.env
+
+# Java / Gradle
+.gradle/
+build/
+out/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Maven (if used locally)
+target/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Node / pnpm
+node_modules/
+apps/**/node_modules/
+apps/pnpm-lock.yaml
+apps/**/dist/
+apps/**/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes (never commit data directories)
+data/
+
+# Test output
+*.lcov
+coverage/
+services/**/build/reports/
+
+# Compiled PlantUML (SVGs are committed, not these)
+# *.svg  ← SVGs are intentionally committed alongside .puml sources

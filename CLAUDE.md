@@ -29,8 +29,57 @@ Description complète, acteurs, périmètre et phases : @docs/PROJECT.md
 
 ## Commandes
 
-À remplir quand le squelette existera (dev, test, lint, build).
+```bash
+make dev          # Démarre la pile complète (build + run)
+make dev-infra    # Démarre l'infra seule (postgres, kafka, keycloak)
+make dev-down     # Arrête tout
+make build        # Construit toutes les images Docker sans démarrer
+make test         # Lance les tests (Gradle + vitest)
+make lint         # Lance les linters (checkstyle + eslint)
+make logs         # Suit les logs de tous les services
+make clean        # Supprime les volumes Docker (détruit les données)
+make init         # Génère gradle-wrapper.jar et installe les dépendances pnpm
+                  # (nécessite Gradle 8.10.2 et pnpm installés localement)
+```
+
+**Prérequis :** Docker Desktop (ou Docker Engine + Compose v2). Copier `.env.example` → `.env` et renseigner les mots de passe avant le premier `make dev`.
+
+**Flux de validation bout en bout (skeleton) :**
+
+```bash
+curl http://localhost:8080/api/v1/orders/ping
+# → {"service":"order-svc","status":"ok"}
+```
 
 ## Structure du dépôt
 
-À remplir. Déjà en place : `docs/PROJECT.md` (description), `docs/adr/` (décisions).
+```
+.
+├── apps/                    # Trois PWA React/TypeScript/Vite
+│   ├── customer-app/        # Client (port 3001)
+│   ├── courier-app/         # Livreur (port 3002)
+│   └── operator-app/        # Opérateur (port 3003)
+├── services/                # Build Gradle multi-projet, 6 services Spring Boot
+│   ├── gateway/             # Spring Cloud Gateway (port 8080)
+│   ├── order-svc/           # Commandes (port 8081)
+│   ├── dispatch-svc/        # Dispatch / algorithme (port 8082)
+│   ├── tracking-svc/        # Positions en temps réel (port 8083)
+│   ├── payment-svc/         # Paiement simulé (port 8084)
+│   └── notification-svc/    # Notifications (Kafka consumer, port 8085)
+├── docker/
+│   ├── postgres/init.sh     # Crée les utilisateurs et schémas par service
+│   └── prometheus/          # Configuration Prometheus
+├── docs/
+│   ├── adr/                 # Décisions d'architecture (ADR 0001–0009)
+│   ├── design/              # Conception complète (UML, OpenAPI, conventions…)
+│   └── README.md            # Index de tous les documents de conception
+├── .github/
+│   ├── workflows/ci.yml     # CI : build + tests Java, build + typecheck frontend, build Docker
+│   ├── workflows/commitlint.yml  # Vérification Conventional Commits sur chaque PR
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── ISSUE_TEMPLATE/      # bug_report.yml, feature_request.yml
+├── docker-compose.yml       # Stack complète (infra + services + frontends)
+├── Makefile                 # Raccourcis dev
+├── .env.example             # Variables d'environnement à copier dans .env
+└── CONTRIBUTING.md          # Guide du contributeur
+```

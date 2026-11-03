@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: order-svc
+          uri: ${ORDER_SVC_URL:http://order-svc:8081}
+          predicates:
+            - Path=/api/v1/orders/**
+
+        - id: dispatch-svc-offers
+          uri: ${DISPATCH_SVC_URL:http://dispatch-svc:8082}
+          predicates:
+            - Path=/api/v1/offers/**
+
+        - id: dispatch-svc-couriers
+          uri: ${DISPATCH_SVC_URL:http://dispatch-svc:8082}
+          predicates:
+            - Path=/api/v1/couriers/**
+
+        - id: tracking-svc
+          uri: ${TRACKING_SVC_URL:http://tracking-svc:8083}
+          predicates:
+            - Path=/api/v1/positions/**
+
+        - id: payment-svc
+          uri: ${PAYMENT_SVC_URL:http://payment-svc:8084}
+          predicates:
+            - Path=/api/v1/payments/**
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
