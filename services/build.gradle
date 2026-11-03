@@ -3,7 +3,7 @@
 plugins {
     id 'org.springframework.boot' version '3.3.5' apply false
     id 'io.spring.dependency-management' version '1.1.6' apply false
-    id 'java' apply false
+    // 'java' is a core Gradle plugin — subprojects apply it directly, no root declaration needed
 }
 
 subprojects {
