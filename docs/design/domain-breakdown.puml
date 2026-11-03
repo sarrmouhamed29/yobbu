@@ -1,0 +1,78 @@
+@startuml domain-breakdown
+' Yóbbu — Domain Breakdown and Context Map (V1)
+' Legend:
+'   solid arrow  → synchronous REST (via gateway)
+'   dashed orange arrow → Kafka event (async)
+'   dashed blue arrow   → SSE live stream
+
+skinparam componentStyle rectangle
+skinparam defaultFontSize 11
+skinparam ArrowFontSize 9
+skinparam backgroundColor #ffffff
+skinparam ComponentBorderColor #555555
+skinparam ComponentBackgroundColor #f5f5f5
+skinparam PackageBorderColor #999999
+skinparam PackageBackgroundColor #fafafa
+
+title Yóbbu — Domain Breakdown and Context Map (V1)
+
+package "External" #e8eaf6 {
+  component "Keycloak\n<size:9>accounts · roles · JWT</size>" as IDP
+}
+
+package "Frontends (React PWA)" #e8f5e9 {
+  component "Customer App" as CA
+  component "Courier App" as CouA
+  component "Operator Console" as OA
+}
+
+component "Simulator\n<size:9>virtual couriers</size>" as SIM
+
+component "gateway\n<size:9>routing · auth check · rate-limit</size>" as GW
+
+package "Backend Services" #fff8e1 {
+  component "order\n<size:9>Order · Delivery\nsimulated merchant</size>" as SVC_order
+  component "dispatch\n<size:9>Offer · Assignment\nCourierSnapshot (local)</size>" as SVC_dispatch
+  component "tracking\n<size:9>Position stream\nSSE broadcast</size>" as SVC_tracking
+  component "payment\n<size:9>PaymentRecord\nsimulated provider</size>" as SVC_payment
+  component "notification\n<size:9>NotificationRecord\nin-app · SMS/email sim.</size>" as SVC_notif
+}
+
+' --- Frontends and simulator → gateway (sync) ---
+CA --> GW : HTTPS
+CouA --> GW : HTTPS
+OA --> GW : HTTPS
+SIM --> GW : HTTPS\n<size:9>(courier API)</size>
+
+' --- gateway → services (sync REST) ---
+GW --> SVC_order : REST
+GW --> SVC_dispatch : REST
+GW --> SVC_tracking : REST\n<size:9>(position)</size>
+
+' --- JWT key fetch (startup, dashed) ---
+GW ..> IDP : <size:9>key fetch\n(startup)</size>
+note on link
+  All backend services validate
+  JWTs locally (public key fetched
+  at startup — no per-request call).
+end note
+
+' --- SSE live streams (blue dashed) ---
+SVC_tracking -[#1565c0,dashed,thickness=2]-> GW : <color:#1565c0><size:9>SSE push</size></color>
+GW -[#1565c0,dashed,thickness=2]-> CA : <color:#1565c0><size:9>live delivery</size></color>
+GW -[#1565c0,dashed,thickness=2]-> OA : <color:#1565c0><size:9>live map</size></color>
+
+' --- Kafka events (orange dashed) ---
+SVC_order -[#e65100,dashed]-> SVC_dispatch : <color:#e65100><size:9>OrderReady</size></color>
+SVC_order -[#e65100,dashed]-> SVC_payment : <color:#e65100><size:9>OrderConfirmed</size></color>
+SVC_order -[#e65100,dashed]-> SVC_notif : <color:#e65100><size:9>OrderConfirmed\nDeliveryCompleted\nDeliveryCancelled</size></color>
+SVC_tracking -[#e65100,dashed]-> SVC_dispatch : <color:#e65100><size:9>CourierPositionSampled\n(1 / 15 s / courier)</size></color>
+SVC_dispatch -[#e65100,dashed]-> SVC_order : <color:#e65100><size:9>DeliveryAssigned</size></color>
+SVC_dispatch -[#e65100,dashed]-> SVC_notif : <color:#e65100><size:9>OfferCreated\nDeliveryAssigned</size></color>
+SVC_payment -[#e65100,dashed]-> SVC_order : <color:#e65100><size:9>PaymentCompleted\nPaymentFailed</size></color>
+SVC_payment -[#e65100,dashed]-> SVC_notif : <color:#e65100><size:9>PaymentCompleted</size></color>
+
+' --- tracking consumes DeliveryAssigned ---
+SVC_dispatch -[#e65100,dashed]-> SVC_tracking : <color:#e65100><size:9>DeliveryAssigned\n(SSE routing)</size></color>
+
+@enduml

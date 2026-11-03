@@ -78,7 +78,7 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 - [x] `DEV` Cas d'utilisation par acteur (client, livreur, marchand, opérateur) + diagramme UML de cas d'utilisation : `docs/design/use-cases.md`
 - [x] `DEV` Exigences non fonctionnelles chiffrées : objectifs de latence du dispatch, positions par seconde, disponibilité visée (premiers SLO), volumétrie estimée : `docs/design/non-functional-requirements.md`
 - [x] `DEV` Contraintes, hypothèses et registre des risques (réseau instable, données personnelles, pics de charge) : `docs/design/constraints-and-risks.md`
-- [ ] `DEV` Découpage en domaines et modules (contextes délimités) + carte des contextes : qui possède quelle donnée, qui parle à qui
+- [x] `DEV` Découpage en domaines et modules (contextes délimités) + carte des contextes : qui possède quelle donnée, qui parle à qui : `docs/design/domain-breakdown.md`
 
 **Modélisation UML**
 
