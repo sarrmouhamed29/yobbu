@@ -125,14 +125,14 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 ### 0.4 Dépôt et squelette
 
-- [ ] `DEV` Structure du dépôt (dossiers, CONTRIBUTING, modèles d'issues et de PR ; README et licence MIT déjà en place)
-- [ ] `DEV` Squelette backend + frontend + base, un flux trivial de bout en bout
-- [ ] `OPS` Démarrage en une commande (`docker compose up` ou `make dev`)
-- [ ] `OPS` CI minimale : lint, tests, build
-- [ ] `OPS` Conteneurs propres (multi-étapes, non root, images légères)
-- [ ] `SEC` Gestion des secrets dès le départ (fichiers d'exemple, aucune valeur dans le dépôt)
-- [ ] `DEV` Conventional Commits appliqués (vérification en CI)
-- [ ] `DEV` Remplir les sections « Commandes » et « Structure » de `CLAUDE.md`
+- [x] `DEV` Structure du dépôt (dossiers, CONTRIBUTING, modèles d'issues et de PR ; README et licence MIT déjà en place)
+- [x] `DEV` Squelette backend + frontend + base, un flux trivial de bout en bout
+- [x] `OPS` Démarrage en une commande (`docker compose up` ou `make dev`)
+- [x] `OPS` CI minimale : lint, tests, build
+- [x] `OPS` Conteneurs propres (multi-étapes, non root, images légères)
+- [x] `SEC` Gestion des secrets dès le départ (fichiers d'exemple, aucune valeur dans le dépôt)
+- [x] `DEV` Conventional Commits appliqués (vérification en CI)
+- [x] `DEV` Remplir les sections « Commandes » et « Structure » de `CLAUDE.md`
 
 **Sortie de phase :** la conception est relue et versionnée ; un inconnu clone le dépôt, lance une commande, voit l'application répondre ; la CI est verte.
 

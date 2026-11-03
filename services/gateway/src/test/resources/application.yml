@@ -1,0 +1,5 @@
+# Test profile: disable routes so the context loads without any upstream services
+spring:
+  cloud:
+    gateway:
+      routes: []

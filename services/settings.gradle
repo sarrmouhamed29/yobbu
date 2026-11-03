@@ -1,0 +1,8 @@
+rootProject.name = 'yobbu-services'
+
+include 'gateway'
+include 'order-svc'
+include 'dispatch-svc'
+include 'tracking-svc'
+include 'payment-svc'
+include 'notification-svc'

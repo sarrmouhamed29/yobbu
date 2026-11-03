@@ -1,0 +1,48 @@
+name: Feature request
+description: Propose a new feature or improvement
+labels: [enhancement]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a request, check that it falls within the current or next phase
+        described in `docs/PROJECT.md`.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What user need or technical gap does this address?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Target phase
+      options:
+        - Phase 0 (skeleton / foundation)
+        - Phase 1 (first complete delivery)
+        - Phase 2 (merchant space, offline, re-assignment)
+        - Phase 3 (multi-country, advanced indicators)
+        - Unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
