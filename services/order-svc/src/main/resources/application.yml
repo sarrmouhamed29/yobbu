@@ -1,6 +1,24 @@
 spring:
   application:
     name: order-svc
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/yobbu?currentSchema=order}
+    username: ${DB_USER:yobbu_order}
+    password: ${DB_PASSWORD_ORDER}
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: order
+        format_sql: false
+  flyway:
+    schemas: order
+    default-schema: order
+    validate-on-migrate: true
 
 server:
   port: ${PORT:8081}

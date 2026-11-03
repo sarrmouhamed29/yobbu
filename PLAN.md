@@ -144,11 +144,13 @@ Objectif : **une livraison complète, de la commande à la remise, dans un pays 
 
 ### 1.1 Modèle et API
 
-- [ ] `DEV` Modèle de données (commandes avec champ `type` repas/colis, livreurs, courses, positions) avec migrations versionnées
-- [ ] `DEV` Paiement mobile money simulé : faux fournisseur, rappel idempotent, statut « payé » (module isolé)
-- [ ] `DEV` Machine d'états de la commande et de la livraison (transitions valides uniquement)
-- [ ] `DEV` API versionnée + spécification OpenAPI
-- [ ] `DEV` Validation, gestion d'erreurs, limitation de débit
+- [x] `DEV` Modèle de données (commandes avec champ `type` repas/colis, livreurs, courses, positions) avec migrations versionnées — ADR 0010 (Flyway), ADR 0011 (Spring Data JPA + Hibernate Spatial)
+- [x] `DEV` Paiement mobile money simulé : faux fournisseur, rappel idempotent, statut « payé » (module isolé)
+- [x] `DEV` Machine d'états de la commande et de la livraison (transitions valides uniquement) — ADR 0012 (Spring State Machine 4.0.0)
+- [x] `DEV` Entités JPA, ports hexagonaux (in/out), service applicatif, controllers REST pour les 4 services
+- [x] `DEV` Validation (Bean Validation), gestion d'erreurs (ProblemDetail RFC 9457)
+- [ ] `DEV` API versionnée + spécification OpenAPI complète
+- [ ] `DEV` Limitation de débit
 
 ### 1.2 Identité
 
@@ -260,7 +262,9 @@ Objectif : le projet tourne vraiment, en ligne.
 | 0007 | Authentification | accepté (Keycloak, OIDC + PKCE) |
 | 0008 | Algorithme de dispatch | à faire |
 | 0009 | Format des diagrammes | accepté (PlantUML) |
-| 0009 | Format des diagrammes | à faire |
+| 0010 | Outil de migration | accepté (Flyway) |
+| 0011 | Accès aux données | accepté (Spring Data JPA + Hibernate Spatial) |
+| 0012 | Machine d'états | accepté (Spring State Machine 4.0.0) |
 
 Statuts : à faire · proposé · accepté · remplacé.
 

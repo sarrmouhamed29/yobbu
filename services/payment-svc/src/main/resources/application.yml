@@ -1,6 +1,22 @@
 spring:
   application:
     name: payment-svc
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/yobbu?currentSchema=payment}
+    username: ${DB_USER:yobbu_payment}
+    password: ${DB_PASSWORD_PAYMENT}
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: payment
+  flyway:
+    schemas: payment
+    default-schema: payment
+    validate-on-migrate: true
 
 server:
   port: ${PORT:8084}
