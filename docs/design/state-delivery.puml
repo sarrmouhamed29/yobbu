@@ -1,0 +1,37 @@
+@startuml state-delivery
+skinparam state {
+  BackgroundColor #fafafa
+  BorderColor #555555
+  ArrowColor #333333
+  FontSize 11
+}
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+
+title Delivery — State Machine
+
+[*] --> PENDING : created when Order → READY
+
+PENDING --> ASSIGNED : DeliveryAssigned event\n(offer accepted, COU-02)
+PENDING --> CANCELLED : order cancelled\nduring DISPATCHING
+
+ASSIGNED --> PICKED_UP : courier marks pickup (COU-04)
+ASSIGNED --> CANCELLED : customer cancels\n[before pickup] (CUS-06)
+
+PICKED_UP --> DELIVERED : courier marks delivery (COU-04)
+
+DELIVERED --> [*]
+CANCELLED --> [*]
+
+PENDING : if no candidate accepts: alert to operator (SYS-04)
+PENDING : delivery stays PENDING in V1
+
+note right of ASSIGNED
+  Each assignment appends an AssignmentRecord
+  (audit trail — see class diagram).
+  Reassignment by operator is V2:
+  ASSIGNED → PENDING with a new courierId.
+end note
+@enduml

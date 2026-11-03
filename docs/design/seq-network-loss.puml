@@ -1,0 +1,80 @@
+@startuml seq-network-loss
+' Courier loses network mid-delivery; resynchronises on return
+
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceParticipantBorderColor #555555
+skinparam sequenceParticipantBackgroundColor #fafafa
+skinparam sequenceLifeLineBorderColor #bbbbbb
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+
+title Network loss and resync\n(ADR 0005: batched idempotent POST — V1; full offline mode: V2)
+
+participant "Courier App\n(IndexedDB queue)" as App
+participant "gateway" as GW
+participant "tracking" as Tracking
+
+autonumber
+
+== Online — normal position reporting ==
+
+App -> GW : POST /positions {point, reportedAt, key=k1}
+GW -> Tracking : forward
+Tracking --> App : 200 OK
+
+App -> GW : POST /positions {point, reportedAt, key=k2}
+GW -> Tracking : forward
+Tracking --> App : 200 OK
+
+== Network lost ==
+
+note over App
+  Network lost.
+  App detects connection failure.
+  Positions continue to be queued locally
+  in IndexedDB with generated idempotency keys.
+  (Full offline mode — COU-06 — is V2.)
+end note
+
+App -> App : queue {point, key=k3}
+App -> App : queue {point, key=k4}
+App -> App : queue {point, key=k5}
+
+... (offline — courier keeps moving) ...
+
+== Network returns ==
+
+note over App, GW : Network restored
+
+App -> GW : POST /positions/batch\n[{point, key=k3}, {point, key=k4}, {point, key=k5}]
+GW -> Tracking : forward batch
+activate Tracking
+Tracking -> Tracking : k3: new → store
+Tracking -> Tracking : k4: new → store
+Tracking -> Tracking : k5: new → store
+Tracking --> App : 200 OK {accepted: [k3, k4, k5]}
+deactivate Tracking
+App -> App : clear queue
+
+== Duplicate batch (retry) ==
+
+note over App : Connection reset before 200 OK was received;\napp retries the same batch.
+
+App -> GW : POST /positions/batch\n[{point, key=k3}, {point, key=k4}, {point, key=k5}]
+GW -> Tracking : forward batch
+activate Tracking
+Tracking -> Tracking : k3: already exists → skip
+Tracking -> Tracking : k4: already exists → skip
+Tracking -> Tracking : k5: already exists → skip
+Tracking --> App : 200 OK {accepted: []}
+deactivate Tracking
+
+note right of Tracking
+  Idempotency: duplicate positions
+  with the same key are silently dropped.
+  No duplicate rows; no error returned.
+  (ADR 0004 — idempotent consumers)
+end note
+@enduml

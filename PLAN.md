@@ -83,10 +83,10 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 **Modélisation UML**
 
 - [x] `DEV` Diagramme de classes du domaine (entités, objets valeur, agrégats, invariants) : `docs/design/class-diagram.md`
-- [ ] `DEV` Diagrammes d'états : commande, livraison, proposition de course, disponibilité du livreur (transitions autorisées et événements déclencheurs)
-- [ ] `DEV` Diagrammes de séquence : flux nominal, refus et expiration d'une proposition, perte de réseau du livreur puis resynchronisation, paiement simulé et rappel idempotent, annulation
-- [ ] `DEV` Diagramme d'activité de l'algorithme de dispatch (candidats, score, repli)
-- [ ] `DEV` Diagramme de composants et diagramme de déploiement (nœuds, conteneurs, réseaux)
+- [x] `DEV` Diagrammes d'états : commande, livraison, proposition de course, disponibilité du livreur (transitions autorisées et événements déclencheurs) : `docs/design/state-diagrams.md`
+- [x] `DEV` Diagrammes de séquence : flux nominal, refus et expiration d'une proposition, perte de réseau du livreur puis resynchronisation, paiement simulé et rappel idempotent, annulation : `docs/design/sequence-diagrams.md`
+- [x] `DEV` Diagramme d'activité de l'algorithme de dispatch (candidats, score, repli) : `docs/design/activity-dispatch.md`
+- [x] `DEV` Diagramme de composants et diagramme de déploiement (nœuds, conteneurs, réseaux) : `docs/design/architecture-diagrams.md`
 
 **Modèle de données**
 

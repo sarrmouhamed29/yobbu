@@ -1,0 +1,64 @@
+@startuml seq-cancellation
+' Customer cancels order before pickup
+
+skinparam sequenceArrowThickness 1.2
+skinparam sequenceParticipantBorderColor #555555
+skinparam sequenceParticipantBackgroundColor #fafafa
+skinparam sequenceLifeLineBorderColor #bbbbbb
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 10
+
+title Customer cancels order (CUS-06 — allowed before pickup)
+
+actor Customer
+participant "order" as Order
+participant "dispatch" as Dispatch
+participant "payment" as Payment
+participant "notification" as Notification
+
+autonumber
+
+Customer -> Order : POST /orders/{id}/cancel
+activate Order
+
+Order -> Order : check status:\nstatus ∈ {PLACED, CONFIRMED, READY, DISPATCHING}?
+
+alt Order status is IN_PROGRESS (goods already picked up)
+  Order --> Customer : 409 Conflict\n"Cancellation not allowed after pickup"
+else Order is cancellable
+  Order -> Order : Order → CANCELLED\nDelivery → CANCELLED
+
+  alt Order was DISPATCHING (offer may exist)
+    Order ->> Dispatch : event: DeliveryCancelled {deliveryId}
+    activate Dispatch
+    Dispatch -> Dispatch : find PENDING offer for deliveryId
+    alt PENDING offer found
+      Dispatch -> Dispatch : Offer → CANCELLED
+      Dispatch ->> Notification : event: OfferCancelled {courierId}
+      Notification -> Courier : push: offer withdrawn
+    end
+    deactivate Dispatch
+  end
+
+  Order ->> Payment : event: OrderCancelled {orderId}
+  activate Payment
+  Payment -> Payment : check PaymentRecord status
+  alt PaymentRecord is PENDING
+    Payment -> Payment : PaymentRecord → CANCELLED
+  else PaymentRecord is PAID
+    note right of Payment
+      Refund logic: TBD in
+      payment design (phase 0.3).
+    end note
+  end
+  deactivate Payment
+
+  Order ->> Notification : event: OrderCancelled {orderId}
+  Order --> Customer : 200 OK
+  deactivate Order
+
+  Notification -> Customer : push: order cancelled
+end
+@enduml

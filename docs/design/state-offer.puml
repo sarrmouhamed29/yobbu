@@ -1,0 +1,35 @@
+@startuml state-offer
+skinparam state {
+  BackgroundColor #fafafa
+  BorderColor #555555
+  ArrowColor #333333
+  FontSize 11
+}
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+
+title Offer — State Machine
+
+[*] --> PENDING : dispatch creates offer\nfor one candidate
+
+PENDING --> ACCEPTED : courier accepts within deadline (COU-02)
+PENDING --> REFUSED : courier refuses (COU-02)
+PENDING --> EXPIRED : deadline passed without answer
+
+ACCEPTED --> [*]
+REFUSED --> [*]
+EXPIRED --> [*]
+
+PENDING : at most one PENDING offer per delivery (invariant)
+PENDING : deadline stored in dispatch DB (ADR 0004)
+
+note right of REFUSED
+  On REFUSED or EXPIRED:
+  dispatch removes the candidate and
+  creates a new offer for the next one.
+  If no candidates remain:
+  alert to operator (SYS-04).
+end note
+@enduml

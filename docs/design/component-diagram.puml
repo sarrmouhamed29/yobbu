@@ -1,0 +1,68 @@
+@startuml component-diagram
+skinparam componentStyle rectangle
+skinparam backgroundColor #ffffff
+skinparam ComponentBackgroundColor #fafafa
+skinparam ComponentBorderColor #555555
+skinparam PackageBackgroundColor #f9f9f9
+skinparam PackageBorderColor #999999
+skinparam defaultFontSize 11
+
+title Yóbbu — Component Diagram (V1)
+
+package "Frontends (React + Vite + PWA)" #e8f5e9 {
+  component "[Customer App]" as CA
+  component "[Courier App]" as CouA
+  component "[Operator Console]" as OA
+}
+
+component "[Simulator]\n<size:9>virtual couriers (demo + load tests)</size>" as SIM
+
+component "[gateway]\n<size:9>:8080 — Spring Boot\nrouting · auth check · rate-limit</size>" as GW
+
+package "Backend Services (Spring Boot, ADR 0002)" #fff8e1 {
+  component "[order]\n<size:9>:8081\nOrder · Delivery · Merchant sim.</size>" as ORDER
+  component "[dispatch]\n<size:9>:8082\nOffer · Assignment · CourierSnapshot</size>" as DISPATCH
+  component "[tracking]\n<size:9>:8083\nPosition stream · SSE broadcast</size>" as TRACKING
+  component "[payment]\n<size:9>:8084\nPaymentRecord · Sim. provider</size>" as PAYMENT
+  component "[notification]\n<size:9>:8085\nNotificationRecord</size>" as NOTIF
+}
+
+package "Infrastructure" #e8eaf6 {
+  database "PostgreSQL + PostGIS\n<size:9>:5432 — one schema + role per service\nFlyway migrations (ADR 0003)</size>" as PG
+  component "[Kafka]\n<size:9>:9092 — single node, no replication locally\noutbox pattern per service (ADR 0004)</size>" as KAFKA
+  component "[Keycloak]\n<size:9>:8180 — OIDC IdP\nJWT validated locally by each service (ADR 0007)</size>" as KC
+}
+
+' Clients → gateway
+CA --> GW : HTTPS
+CouA --> GW : HTTPS
+OA --> GW : HTTPS
+SIM --> GW : HTTPS\n<size:9>(courier API)</size>
+
+' Gateway → services (sync REST / SSE)
+GW --> ORDER : REST
+GW --> DISPATCH : REST
+GW --> TRACKING : REST / SSE
+
+' JWT key fetch (startup)
+GW ..> KC : <size:9>key fetch (startup)</size>
+ORDER ..> KC
+DISPATCH ..> KC
+TRACKING ..> KC
+PAYMENT ..> KC
+NOTIF ..> KC
+
+' Services → PostgreSQL
+ORDER --> PG
+DISPATCH --> PG
+TRACKING --> PG
+PAYMENT --> PG
+NOTIF --> PG
+
+' Services → Kafka
+ORDER --> KAFKA
+DISPATCH --> KAFKA
+TRACKING --> KAFKA
+PAYMENT --> KAFKA
+NOTIF --> KAFKA
+@enduml

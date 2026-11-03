@@ -1,0 +1,50 @@
+@startuml activity-dispatch
+skinparam activityBackgroundColor #fafafa
+skinparam activityBorderColor #555555
+skinparam activityArrowColor #333333
+skinparam activityDiamondBackgroundColor #fff8e1
+skinparam activityDiamondBorderColor #888888
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+skinparam backgroundColor #ffffff
+skinparam defaultFontSize 11
+
+title Dispatch algorithm — activity diagram\n(scoring formula and parameters: ADR 0008, to be written)
+
+start
+
+:Receive OrderReady event\n{deliveryId, pickupPoint};
+
+:Query CourierSnapshot (PostGIS):\nAVAILABLE couriers within radius,\nordered by score(distance, load, urgency);
+
+note right
+  Score formula: ADR 0008.
+  Staleness tolerance also set in ADR 0008.
+end note
+
+if (candidates found?) then (yes)
+else (no)
+  :Publish BlockedDelivery\n(→ operator alert, SYS-04);
+  stop
+endif
+
+while (candidates remaining?) is (yes)
+  :Take top-scored candidate C;
+  :Create Offer {deliveryId, courierId: C, deadline};
+  :Publish OfferCreated\n(→ notification → courier push);
+  :Wait for courier response or deadline;
+  if (offer accepted by C?) then (yes)
+    :Offer C → ACCEPTED;
+    :Publish DeliveryAssigned {deliveryId, courierId: C};
+    :Delivery → ASSIGNED in order service;
+    stop
+  else (refused or deadline passed)
+    :Offer C → REFUSED or EXPIRED;
+    :Remove C from candidates;
+  endif
+endwhile (no)
+
+:Publish BlockedDelivery\n(→ operator alert, SYS-04);
+
+stop
+@enduml
