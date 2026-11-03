@@ -1,7 +1,7 @@
 package com.yobbu.order.infrastructure.persistence;
 
 import com.yobbu.order.domain.model.Order;
-import com.yobbu.order.domain.port.out.OrderRepository;
+import com.yobbu.order.domain.port.outgoing.OrderRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

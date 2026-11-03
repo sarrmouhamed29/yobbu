@@ -6,7 +6,7 @@ import com.yobbu.order.domain.model.OrderStatus;
 import com.yobbu.order.domain.port.in.CreateOrderUseCase;
 import com.yobbu.order.domain.port.in.GetOrderUseCase;
 import com.yobbu.order.domain.port.in.TransitionOrderUseCase;
-import com.yobbu.order.domain.port.out.OrderRepository;
+import com.yobbu.order.domain.port.outgoing.OrderRepository;
 import com.yobbu.order.statemachine.OrderStateMachineService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
