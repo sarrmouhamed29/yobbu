@@ -2,7 +2,7 @@ package com.yobbu.order.application;
 
 import com.yobbu.order.domain.model.*;
 import com.yobbu.order.domain.port.in.CreateOrderUseCase.CreateOrderCommand;
-import com.yobbu.order.domain.port.out.OrderRepository;
+import com.yobbu.order.domain.port.outgoing.OrderRepository;
 import com.yobbu.order.statemachine.OrderStateMachineService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
