@@ -1,0 +1,63 @@
+@startuml c4-context
+
+title Yóbbu — System Context (C4 Level 1)
+
+skinparam defaultFontSize 10
+skinparam backgroundColor #ffffff
+skinparam ArrowColor #444444
+skinparam ArrowThickness 1.2
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+
+skinparam actor {
+  BackgroundColor #FFF9C4
+  BorderColor #F9A825
+  FontStyle bold
+}
+skinparam package {
+  BackgroundColor #BBDEFB
+  BorderColor #1565C0
+  FontStyle bold
+}
+skinparam rectangle {
+  BackgroundColor #F5F5F5
+  BorderColor #9E9E9E
+}
+
+actor "Customer\n[Person]" as Customer
+actor "Courier\n[Person]" as Courier
+actor "Operator\n[Person]" as Operator
+
+package "Yóbbu\n[Software System]" as Yobbu {
+  note as YN
+    Real-time delivery dispatch
+    platform for African markets.
+    Selects couriers, tracks deliveries
+    live, notifies all parties.
+  end note
+}
+
+rectangle "Keycloak\n[Identity Provider]\nOIDC + PKCE — manages accounts,\nroles and token issuance" as Keycloak
+rectangle "Notification Channels\n[External System — simulated in V1]\nPush, SMS and email delivery" as Notif
+rectangle "Map Tiles Provider\n[External System]\nOpenStreetMap-compatible raster tiles\n(self-hosted or CDN)" as Tiles
+
+Customer --> Yobbu : places order, tracks delivery on map,\nreceives notifications, cancels, rates
+Courier  --> Yobbu : reports availability and position,\naccepts / refuses offers, updates status
+Operator --> Yobbu : monitors all deliveries on a map,\nresolves blocked cases, reads metrics
+
+Yobbu --> Keycloak    : authenticates users (OIDC) ;\nfetches public keys to validate tokens
+Yobbu --> Notif       : sends push, SMS and email\nnotifications to customers and couriers
+Yobbu ..> Tiles       : fetches map tiles for the\nlive-tracking map (dotted = V1 TBD)
+
+note right of Tiles
+  ADR for tile provider to be written
+  in phase 0.4 (1.4 in PLAN.md).
+end note
+
+note bottom of Yobbu
+  The simulated merchant and the courier simulator
+  are internal actors of the system, not external persons.
+  They appear in the containers view (C4 Level 2).
+end note
+
+@enduml

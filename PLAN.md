@@ -98,12 +98,12 @@ Objectif : une conception complète, relue et versionnée **avant** d'écrire le
 
 **Architecture (vues complémentaires)**
 
-- [ ] `DEV` Modèle C4 : niveau 1 (contexte), niveau 2 (conteneurs), niveau 3 (composants des parties critiques)
-- [ ] `DEV` Vue fonctionnelle : capacités par acteur et leurs dépendances
-- [ ] `OPS` Vue technique et d'infrastructure : environnements, réseau, stockage, flux entrants et sortants
-- [ ] `DEV` Vue des flux de données et d'événements : catalogue des événements (nom, schéma, producteur, consommateurs, version)
-- [ ] `SEC` Frontières de confiance et modèle de menaces (STRIDE) sur les flux sensibles
-- [ ] `DEV` Stratégie de cohérence : ce qui est transactionnel, ce qui est asynchrone, où l'idempotence est requise
+- [x] `DEV` Modèle C4 : niveau 1 (contexte), niveau 2 (conteneurs), niveau 3 (composants des parties critiques)
+- [x] `DEV` Vue fonctionnelle : capacités par acteur et leurs dépendances
+- [x] `OPS` Vue technique et d'infrastructure : environnements, réseau, stockage, flux entrants et sortants
+- [x] `DEV` Vue des flux de données et d'événements : catalogue des événements (nom, schéma, producteur, consommateurs, version)
+- [x] `SEC` Frontières de confiance et modèle de menaces (STRIDE) sur les flux sensibles
+- [x] `DEV` Stratégie de cohérence : ce qui est transactionnel, ce qui est asynchrone, où l'idempotence est requise
 
 **Contrats et conventions**
 

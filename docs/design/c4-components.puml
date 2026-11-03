@@ -1,0 +1,95 @@
+@startuml c4-components
+
+title Yóbbu — Components (C4 Level 3)\norder-svc and dispatch-svc (most complex services)
+
+skinparam defaultFontSize 9
+skinparam backgroundColor #ffffff
+skinparam ArrowColor #444444
+skinparam ArrowThickness 1.2
+skinparam NoteBackgroundColor #fffde7
+skinparam NoteBorderColor #d0d0d0
+
+skinparam component {
+  BackgroundColor #fafafa
+  BorderColor #555555
+}
+skinparam package {
+  BackgroundColor #fafafa
+  BorderColor #aaaaaa
+}
+skinparam database {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+}
+skinparam queue {
+  BackgroundColor #FCE4EC
+  BorderColor #880E4F
+}
+
+' ── Shared infrastructure ─────────────────────────────────
+database "order schema\n[PostgreSQL]" as OrderDB
+database "dispatch schema\n[PostgreSQL]" as DispatchDB
+queue    "Kafka" as Kafka
+
+' ── order-svc ─────────────────────────────────────────────
+package "order-svc [:8081]" #fff8e1 {
+
+  component "OrderController\n[REST — /orders, /orders/{id}/cancel\n/orders/{id}/pickup, /orders/{id}/deliver]" as OCtrl
+  component "OrderCommandHandler\n[Application service]\nOrchestrates use cases;\nloads aggregate, applies command,\nsaves, publishes event" as OCmdH
+  component "OrderAggregate\n[Domain]\nOrder + Delivery state machines;\nenforces invariants" as OAgg
+  component "DeliveryRepository\n[Infrastructure]\nJPA/JDBC — deliveries,\nassignment_records,\nstatus_history tables" as ORepo
+  component "OrderRepository\n[Infrastructure]\nJPA/JDBC — orders,\nstatus_history tables" as DRepo
+  component "MerchantSimulator\n[Internal actor]\nAuto-confirms order (delay T1)\nthen auto-declares ready (delay T2)" as MerchSim
+  component "TransactionalEventPublisher\n[Infrastructure]\nPublishes Kafka events after\nDB transaction commits\n(@TransactionalEventListener)" as OPub
+}
+
+' ── dispatch-svc ──────────────────────────────────────────
+package "dispatch-svc [:8082]" #e8f5e9 {
+
+  component "DispatchController\n[REST — /offers/{id}/accept\n/offers/{id}/refuse\n/couriers/availability]" as DCtrl
+  component "DispatchApplicationService\n[Application service]\nStart dispatch for a delivery;\ncreate offer; handle response;\nadvance to next candidate" as DAppSvc
+  component "DispatchAlgorithm\n[Domain service]\nRanks available couriers by:\n1. PostGIS proximity (ST_DWithin)\n2. active_deliveries (load)\n(ADR 0008 parameters)" as DAlg
+  component "OfferRepository\n[Infrastructure]\nJPA/JDBC — offers table;\nenforces partial unique index\n(one PENDING per delivery)" as OfferRepo
+  component "CourierSnapshotRepository\n[Infrastructure]\nJPA/JDBC — courier_snapshots;\nupsert on position event;\nPostGIS proximity query" as CSRepo
+  component "CourierPositionConsumer\n[Kafka consumer]\nConsumes CourierPositionSampled;\nupserts CourierSnapshot" as CPosCons
+  component "CourierAvailabilityConsumer\n[Kafka consumer]\nConsumes CourierAvailabilityChanged;\nupdates snapshot.availability" as CAvailCons
+  component "TransactionalEventPublisher\n[Infrastructure]\nPublishes Kafka events after\nDB transaction commits" as DPub
+}
+
+' ── Relationships within order-svc ───────────────────────
+OCtrl   --> OCmdH
+MerchSim --> OCmdH : triggers confirm / ready
+OCmdH   --> OAgg
+OCmdH   --> ORepo
+OCmdH   --> DRepo
+OCmdH   --> OPub
+OPub    --> Kafka  : order-events\n(OrderPlaced, OrderConfirmed, OrderReady,\nCourierPickedUp, CourierDelivered,\nOrderCancelled, DeliveryCancelled)
+ORepo   --> OrderDB
+DRepo   --> OrderDB
+
+' ── Relationships within dispatch-svc ────────────────────
+DCtrl       --> DAppSvc
+DAppSvc     --> DAlg
+DAppSvc     --> OfferRepo
+DAlg        --> CSRepo : proximity query
+DAppSvc     --> DPub
+CPosCons    --> CSRepo : upsert
+CAvailCons  --> CSRepo : update availability
+CPosCons    <-- Kafka  : position-events
+CAvailCons  <-- Kafka  : availability-events
+DPub        --> Kafka  : dispatch-events\n(OfferCreated, OfferCancelled,\nDeliveryAssigned, BlockedDelivery)
+OfferRepo   --> DispatchDB
+CSRepo      --> DispatchDB
+
+note bottom of OPub
+  @TransactionalEventListener(phase = AFTER_COMMIT):
+  event is published only after the DB transaction
+  commits successfully. If Kafka is unavailable,
+  the event is lost in V1 (outbox pattern in V2).
+end note
+
+note bottom of DPub
+  Same pattern as order-svc.
+end note
+
+@enduml
